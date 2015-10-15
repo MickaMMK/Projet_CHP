@@ -54,4 +54,4 @@ Voir les derniers commit :
 UTILISATION DE VIM :
 
 Passer en mode insertion (écrire du texte) : i
-Enregistrer et quitter : echap :wq
+Enregistrer et quitter : echap : w q
