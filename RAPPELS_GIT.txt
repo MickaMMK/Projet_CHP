@@ -1,6 +1,8 @@
 Enregistrer modifications locales :
 
-> git add fichier1 fichier2 ... (suit les fichiers)
+> git add fichier1 fichier2 ... (ajoute les fichiers au projet local)
+> git rm fichier1 fichier2 ... (enlève les fichiers au projet local)
+> git rm -r dossier (pour supprimer un dossier)
 > git commit (commit les fichiers suivis)
 > git commit -a (commit tous les fichiers, pas besoin de add)
 > git status (permet de voir les modifications et les fichiers suivis ou non)
