@@ -1,0 +1,55 @@
+Enregistrer modifications locales :
+
+> git add fichier1 fichier2 ... (suit les fichiers)
+> git commit (commit les fichiers suivis)
+> git commit -a (commit tous les fichiers, pas besoin de add)
+> git status (permet de voir les modifications et les fichiers suivis ou non)
+
+
+Envoyer le projet local :
+
+> git pull (facultatif mais permet d'éviter les conflits sur le serveur)
+> git push (envoi le projet local sur le serveur)
+
+
+Gérer les branches :
+
+> git branch (permet de voir où on est)
+> git branch nom_de_branche (crée la branche)
+> git branch -d nom_de_branche (supprime la branche)
+> git checkout nom_de_branche (permet de changer de branche)
+!!! Ne pas oublier d'enregistrer les modifications (add + commit) avant de changer de branche
+> git merge nom_de_branche (fusionner les branches)
+
+
+Mettre de côté le travail sur une branche sans le commit :
+
+> git stash (enregistre les modifications sur la branche, on peut ensuite partir et travailler sur une autre branche)
+> git stash apply (récupère les modifications enregistrées)
+
+
+Annuler le dernier commit (récupérer le git pré-commit) :
+
+> git reset HEAD^ (HEAD^^ pour annuler 2 commits)
+
+
+Modifier le message du dernier commit :
+
+> git commit --amend
+
+
+Annuler les modifications sur un fichier et le récupérer comme au dernier commit :
+
+> git checkout fichier
+
+
+Voir les derniers commit :
+
+> git log
+> git log -p (plus de précisions)
+
+
+UTILISATION DE VIM :
+
+Passer en mode insertion (écrire du texte) : i
+Enregistrer et quitter : echap :wq
