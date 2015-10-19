@@ -1,3 +1,13 @@
+Récupérer le projet (à ne faire qu'une fois) :
+
+> git clone https://github.com/MickaMMK/Projet_CHP.git (pas besoin de git init)
+
+
+Récupérer le projet en ligne (à faire à chaque fois) :
+
+> git pull (récupère les changements)
+
+
 Enregistrer modifications locales :
 
 > git add fichier1 fichier2 ... (ajoute les fichiers au projet local)
