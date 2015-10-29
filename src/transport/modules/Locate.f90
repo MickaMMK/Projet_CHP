@@ -1,10 +1,9 @@
 module LOCATE
 
   !%%%%%%%% COMMENTAIRES  %%%%%%%%!
-!Ce fichier est issu du TER de 1ere année de Mickaël et Pacôme. Il permet de trouver de manière rapide et efficace
-!dans quel triangle se trouve un point du plan.
-!On peut: -soit déclarer nos structures de données pour qu'elle soit identique à celle de ce fichier
-!         -soit l'inverse.
+!Ce fichier est issu du TER de 1ere année de Mickaël et Pacôme. Il permet de trouver de manière rapide et efficace dans quel triangle se trouve un point du plan
+!On peut: -soit déclarer nos structures de données pour qu'elle soit identique à celle de ce fichier: les maillages sont écrits en format .mesh qui sont lus par le logiciel de visualisation medit-linux par exemple.
+!         -soit l'inverse, on modifie ce fichier pour qu'il écrive au format qu'on aura choisi
   !%%%%%%%% FIN COMMENTAIRES  %%%%%%%%!
 
   implicit none
