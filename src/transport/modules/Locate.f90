@@ -1,5 +1,5 @@
 module LOCATE
-!Ce fichier est issu du TER de 1ere année de Mickaël et Pacôme. Il permet de trouver de manière rapide et efficace
+ !Ce fichier est issu du TER de 1ere année de Mickaël et Pacôme. Il permet de trouver de manière rapide et efficace
 !dans quel triangle se trouve un point du plan.
 !On peut: -soit déclarer nos structures de données pour qu'elle soit identique à celle de ce fichier
 !         -soit l'inverse.
