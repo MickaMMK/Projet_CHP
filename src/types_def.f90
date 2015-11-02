@@ -1,4 +1,4 @@
-module maillage
+module types_def
   
   implicit none
 
@@ -17,4 +17,4 @@ module maillage
      type(centre), pointer :: centre
   end type maille
 
-end module maillage
+end module types_def
