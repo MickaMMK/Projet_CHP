@@ -1,4 +1,4 @@
-module program transport
+module transportmod
 !!$%%%%%%% COMMENTAIRES %%%%%%%!!
 !!$Résolution de l'équation de transport d(f)/dt + v.grad(f)=0
 !!$
@@ -6,26 +6,29 @@ module program transport
 !!$
 !!$%%%%%%% FIN COMMENTAIRES %%%%%%%!!
   implicit none
-integer::i,j,n
-type(noeud),dimension(:),allocatable::vitesses
-type(maille),dimension(:),allocatable::f,f_old !contient la grandeur à transporter
-real(8)::t,dt
 
-!boucle en temps
-do while(t<tmax)
+contains
+  subroutine transport(vitesses, level)
+    real(8), dimension(N+1,N+1,2), intent(in) :: vitesses
+    real(8), dimension(N+1,N+1), intent(inout) :: level
+    integer::i,j,n
+    type(maille),dimension(:),allocatable::f,f_old !contient la grandeur à transporter
+    real(8)::t,dt
 
-   f_old=f
-   !boucle sur les noeuds
-   do i=1,size(f_old%noeuds)
-      !position au temps précedent
-      call euler(f_old%noeud(i),vitesses)
-      call locate(f_old%noeud, maille ou noeuds voisins)
-      !valeur au temps précédent
-      call interp(f_old%val(i),f%val(i), maille ou noeuds voisins)
-t=t+dt
+    !boucle sur les noeuds
+    do i = 1, N+1
+       do j = 1, N+1
 
-   end do
-end do
+          !position au temps précedent
+          call euler(-1.*vitesses, point_old)
+          call find_noeuds(point_old, indices)
+          !valeur au temps précédent
+          call interp(f_old%val(i),f%val(i), maille ou noeuds voisins)
+          t=t+dt
 
+       end do
+    end do
 
-end module transport
+  end subroutine transport
+
+end module transportmod
