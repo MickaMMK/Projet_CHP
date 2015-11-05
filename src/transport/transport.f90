@@ -27,7 +27,7 @@ contains
           !position au temps précedent
           coord = noeuds(i,j)
           call euler(-1.*vitesses(i,j,:), coord, dt) !Modifie coord
-          call find_noeuds(coord, indices) !Récupère les indices des sommets
+          call locate(coord, indices) !Récupère les indices des sommets
           !valeur au temps précédent
           do k = 1, 4
              sommets(k,1:2) = noeuds(indices(k,1), indices(k,2))  !sommets contient pour les 4 sommets
