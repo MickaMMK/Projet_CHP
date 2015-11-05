@@ -8,10 +8,13 @@ module transportmod
   implicit none
 
 contains
-  subroutine transport(noeuds, vitesses, level, dt)
+  subroutine transport(noeuds, vitesses, level, dt, dx)
+
+    implicit none
+
     real(8), dimension(N+1,N+1,2), intent(in) :: noeuds, vitesses
     real(8), dimension(N+1,N+1), intent(inout) :: level
-    real(8), intent(in) :: dt
+    real(8), intent(in) :: dt, dx
     real(8), dimension(N+1,N+1) :: old_level
     real(8), dimension(2) :: coord
     real(8), dimension(4,3) :: sommets
@@ -27,7 +30,7 @@ contains
           !position au temps précedent
           coord = noeuds(i,j)
           call euler(-1.*vitesses(i,j,:), coord, dt) !Modifie coord
-          call locate(coord, indices) !Récupère les indices des sommets
+          call locate(coord, dx, indices) !Récupère les indices des sommets
           !valeur au temps précédent
           do k = 1, 4
              sommets(k,1:2) = noeuds(indices(k,1), indices(k,2))  !sommets contient pour les 4 sommets
