@@ -13,6 +13,10 @@ program main
   real(8) :: dx
   integer :: i, j
 
+  integer, dimension(2) :: indices
+  real(8), dimension(4,2) :: sommets
+  
+
   dx = 1/N
 
   do i = 1, N+1
@@ -54,6 +58,13 @@ program main
 
   close(12)
   close(13)
+
+  sommets(:,1) = (/1.,2.,3.,4./)
+  sommets(:,2) = (/11.,12.,13.,14./)
+
+  indices = (/1,1/)
+
+  print*, sommets(indices(1), indices(2))
 
 contains
 
