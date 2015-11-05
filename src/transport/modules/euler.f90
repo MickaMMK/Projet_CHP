@@ -1,6 +1,6 @@
 module eulermod
 !!$%%%%%%% COMMENTAIRES %%%%%%%!!
-!!$ Schéma d'Euler pour situer au temps n-1 la valeur sur un noeud au temps n
+!!$ Méthode d'Euler pour situer au temps n-1 la valeur sur un noeud au temps n
 !!$ de la fonction cherchée 
 !!$
 !!$ ATTENTION, CA DEVRAIT PAS COMPILER: VERIFIER SYNTAXE ET TYPES
@@ -9,17 +9,16 @@ module eulermod
   implicit none
 
 contains
-  subroutine euler(vitesses,f,dt)
+  subroutine euler(vitesse, coord, dt)
     implicit none
-    type(vecteur),dimension(:),allocatable::vitesses
-    type(scalaire),dimension(:),allocatable::f,f_old !contient la grandeur à transporter
-    integer::i,j
-    real(8)::dt
-    !on a besoin de la vitesse au temps n
-    f_old=f
+    
+    !Déclaration des variables
+    real(8),dimension(2),intent(in) :: vitesse
+    real(8),dimension(2),intent(inout) : coord
+    real(8),intent(in) :: dt
 
-    f_old%noeuds(i)=f_old%noeuds(i)-vitesses(i)*dt
-    !ca devrait donner la position au temps n, qui est le temps preced
+    coord = coord + dt*vitesse
+
   end subroutine euler
 
 
