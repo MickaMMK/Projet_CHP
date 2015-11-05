@@ -18,4 +18,11 @@ module maillage
      type(centre), pointer :: centre
   end type maille
 
+  type vector2D
+        real(kind=8) , dimension(2) :: coord
+        type(noeud) , pointer :: noeud
+  end type vector2D
+
+  
+
 end module maillage
