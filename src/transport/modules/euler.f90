@@ -14,7 +14,7 @@ contains
     
     !Déclaration des variables
     real(8),dimension(2),intent(in) :: vitesse
-    real(8),dimension(2),intent(inout) : coord
+    real(8),dimension(2),intent(inout) :: coord
     real(8),intent(in) :: dt
 
     coord = coord + dt*vitesse

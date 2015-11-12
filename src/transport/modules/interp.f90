@@ -72,5 +72,52 @@ contains
 
   end subroutine interp
 
+  
+  subroutine interp_avancee(sommets,coord,valeur)
+
+
+!!$%%%%%%% COMMENTAIRES %%%%%%%!!
+!!$
+!!$ Interpolation bilinéaire plus précise de la forme phi(x,y)=aX+bY+cXY+d,
+!!$ 
+!!$ où X=x-x1, Y=y-y1 et (x,y) les coordonnées du point où l'on veut savoir la valeur de phi.
+!!$
+!!$%%%%%%% FIN COMMENTAIRES %%%%%%%!!
+
+    implicit none
+    
+    !Déclaration des variables
+    
+    real(8),dimension(4,3),intent(in) :: sommets   ! Tableau 4*3. Chaque case contient les informations sur le sommet(x_pos, y_pos,valeur de phi à ce point)
+    real(8),dimension(2),intent(in) :: coord       ! Coordonnées du point où l'on veut savoir la valeur de phi
+    real(8),intent(out) :: valeur
+
+    real(8) :: dx,dy
+    real(8) :: a,b,c,d
+    
+    real(8) :: X,Y
+
+    ! Définition de dx et dy, les dimensions du carré
+ 
+    dx=sommets(2,1)-sommets(1,1) !x2-x1
+    dy=sommets(3,2)-sommets(1,2) !y3-y1
+    
+    
+    !Définition des a,b,c et d
+    
+    a=(sommets(2,3)-sommets(1,3))/dx
+    b=(sommets(3,3)-sommets(1,3))/dy
+    c=((sommets(1,3)+sommets(4,3))-(sommets(2,3)+sommets(3,3)))/(dx*dy)
+    d=sommets(1,3)
+    
+    !Valeur de phi
+
+    X=coord(1)-sommets(1,1)
+    Y=coord(2)-sommets(1,2)
+
+    valeur = a*X+b*Y+c*X*Y+d    
+    
+  end subroutine interp_avancee
+  
 
 end module interpmod
