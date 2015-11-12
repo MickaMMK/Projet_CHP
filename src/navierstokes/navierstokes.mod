@@ -1,10 +1,8 @@
 GFORTRAN module version '10' created from navierstokes.f90
-MD5:b5b01699ef3fa848c8fc1e40a52225de -- If you edit this, you'll get what you deserve.
+MD5:3ea98d1df598563fab34620befe0285f -- If you edit this, you'll get what you deserve.
 
-(() () () () () () () () () () () () () () () () () () () () () () () ()
-() () ())
-
-()
+(() () () () () () () () () () () () () () () () () () () () () () ()
+() () () ())
 
 ()
 
@@ -14,58 +12,99 @@ MD5:b5b01699ef3fa848c8fc1e40a52225de -- If you edit this, you'll get what you de
 
 ()
 
-(2 'mac_scheme' 'navierstokes' '' 1 ((PROCEDURE UNKNOWN-INTENT
+()
+
+(2 'grad_conj' 'grad_conj' '' 1 ((MODULE UNKNOWN-INTENT UNKNOWN-PROC
+UNKNOWN UNKNOWN 0 0) (UNKNOWN 0 0 0 0 UNKNOWN ()) 0 0 () () 0 () () () 0
+0)
+3 'grad_conj_opt' 'grad_conj' '' 1 ((PROCEDURE UNKNOWN-INTENT
+MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE ALWAYS_EXPLICIT) (UNKNOWN 0 0 0
+0 UNKNOWN ()) 4 0 (5 6 7) () 0 () () () 0 0)
+8 'kind' '(intrinsic)' '' 1 ((PROCEDURE UNKNOWN-INTENT UNKNOWN-PROC
+UNKNOWN UNKNOWN 0 0 FUNCTION) (UNKNOWN 0 0 0 0 UNKNOWN ()) 0 0 () () 8 ()
+() () 0 0)
+9 'mac_scheme' 'navierstokes' '' 1 ((PROCEDURE UNKNOWN-INTENT
 MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE) (UNKNOWN 0 0 0 0
 UNKNOWN ()) 0 0 () () 0 () () () 0 0)
-3 'navierstokes' 'navierstokes' '' 1 ((MODULE UNKNOWN-INTENT
+10 'mat_vect' 'navierstokes' '' 1 ((PROCEDURE UNKNOWN-INTENT MODULE-PROC
+DECL UNKNOWN 0 0 ALLOCATABLE DIMENSION FUNCTION IMPLICIT_PURE
+ALWAYS_EXPLICIT) (REAL 8 0 0 0 REAL ()) 11 0 (12) (1 0 DEFERRED () ())
+13 () () () 0 0)
+14 'navierstokes' 'navierstokes' '' 1 ((MODULE UNKNOWN-INTENT
 UNKNOWN-PROC UNKNOWN UNKNOWN 0 0) (UNKNOWN 0 0 0 0 UNKNOWN ()) 0 0 () ()
 0 () () () 0 0)
-4 'projection_method' 'navierstokes' '' 1 ((PROCEDURE UNKNOWN-INTENT
+15 'projection_method' 'navierstokes' '' 1 ((PROCEDURE UNKNOWN-INTENT
 MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE ALWAYS_EXPLICIT) (UNKNOWN 0 0 0
-0 UNKNOWN ()) 5 0 (6 7 8 9 10 11 12 13 14) () 0 () () () 0 0)
-15 'remplissage_poisson' 'navierstokes' '' 1 ((PROCEDURE UNKNOWN-INTENT
+0 UNKNOWN ()) 16 0 (17 18 19 20 21 22 23 24 25) () 0 () () () 0 0)
+26 'remplissage_poisson' 'navierstokes' '' 1 ((PROCEDURE UNKNOWN-INTENT
 MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE ALWAYS_EXPLICIT) (
-UNKNOWN 0 0 0 0 UNKNOWN ()) 16 0 (17 18 19) () 0 () () () 0 0)
-20 'troisieme_schema' 'navierstokes' '' 1 ((PROCEDURE UNKNOWN-INTENT
+UNKNOWN 0 0 0 0 UNKNOWN ()) 27 0 (28 29 30) () 0 () () () 0 0)
+31 'troisieme_schema' 'navierstokes' '' 1 ((PROCEDURE UNKNOWN-INTENT
 MODULE-PROC DECL UNKNOWN 0 0 SUBROUTINE IMPLICIT_PURE) (UNKNOWN 0 0 0 0
 UNKNOWN ()) 0 0 () () 0 () () () 0 0)
-6 'u' '' '' 5 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DIMENSION
+32 'wp' 'grad_conj' '' 1 ((PARAMETER UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
+IMPLICIT-SAVE 0 0) (INTEGER 4 0 0 0 INTEGER ()) 0 0 () (CONSTANT (
+INTEGER 4 0 0 0 INTEGER ()) 0 '8') () 0 () () () 0 0)
+5 'a' '' '' 4 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DIMENSION
+DUMMY) (REAL 8 0 0 0 REAL ()) 0 0 () (2 0 ASSUMED_SHAPE (CONSTANT (
+INTEGER 4 0 0 0 INTEGER ()) 0 '1') () (CONSTANT (INTEGER 4 0 0 0 INTEGER
+()) 0 '1') ()) 0 () () () 0 0)
+6 'x' '' '' 4 ((VARIABLE OUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DIMENSION
+DUMMY) (REAL 8 0 0 0 REAL ()) 0 0 () (1 0 EXPLICIT (CONSTANT (INTEGER 4
+0 0 0 INTEGER ()) 0 '1') (FUNCTION (INTEGER 4 0 0 0 INTEGER ()) 0 33 ((''
+(VARIABLE (REAL 8 0 0 0 REAL ()) 2 5 ((ARRAY (FULL 2 2 2))))) ('' (
+CONSTANT (INTEGER 4 0 0 0 INTEGER ()) 0 '1')) ('' ())) '' 0 'size')) 0 ()
+() () 0 0)
+7 'b' '' '' 4 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DIMENSION
+DUMMY) (REAL 8 0 0 0 REAL ()) 0 0 () (1 0 ASSUMED_SHAPE (CONSTANT (
+INTEGER 4 0 0 0 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
+12 'x' '' '' 11 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DIMENSION
+DUMMY) (REAL 8 0 0 0 REAL ()) 0 0 () (1 0 ASSUMED_SHAPE (CONSTANT (
+INTEGER 4 0 0 0 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
+13 'y' '' '' 11 ((VARIABLE UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN UNKNOWN 0
+0 ALLOCATABLE DIMENSION RESULT ALWAYS_EXPLICIT) (REAL 8 0 0 0 REAL ()) 0
+0 () (1 0 DEFERRED () ()) 0 () () () 0 0)
+17 'u' '' '' 16 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DIMENSION
 DUMMY) (REAL 8 0 0 0 REAL ()) 0 0 () (3 0 ASSUMED_SHAPE (CONSTANT (
 INTEGER 4 0 0 0 INTEGER ()) 0 '1') () (CONSTANT (INTEGER 4 0 0 0 INTEGER
 ()) 0 '1') () (CONSTANT (INTEGER 4 0 0 0 INTEGER ()) 0 '1') ()) 0 () ()
 () 0 0)
-7 'p' '' '' 5 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DIMENSION
+18 'p' '' '' 16 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DIMENSION
 DUMMY) (REAL 8 0 0 0 REAL ()) 0 0 () (2 0 ASSUMED_SHAPE (CONSTANT (
 INTEGER 4 0 0 0 INTEGER ()) 0 '1') () (CONSTANT (INTEGER 4 0 0 0 INTEGER
 ()) 0 '1') ()) 0 () () () 0 0)
-8 'u_next' '' '' 5 ((VARIABLE OUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+19 'u_next' '' '' 16 ((VARIABLE OUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
 DIMENSION DUMMY) (REAL 8 0 0 0 REAL ()) 0 0 () (3 0 ASSUMED_SHAPE (
 CONSTANT (INTEGER 4 0 0 0 INTEGER ()) 0 '1') () (CONSTANT (INTEGER 4 0 0
 0 INTEGER ()) 0 '1') () (CONSTANT (INTEGER 4 0 0 0 INTEGER ()) 0 '1') ())
 0 () () () 0 0)
-9 'p_next' '' '' 5 ((VARIABLE OUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+20 'p_next' '' '' 16 ((VARIABLE OUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
 DIMENSION DUMMY) (REAL 8 0 0 0 REAL ()) 0 0 () (2 0 ASSUMED_SHAPE (
 CONSTANT (INTEGER 4 0 0 0 INTEGER ()) 0 '1') () (CONSTANT (INTEGER 4 0 0
 0 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
-10 'rho' '' '' 5 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (
+21 'rho' '' '' 16 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY)
+(REAL 8 0 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
+22 'nu' '' '' 16 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (
 REAL 8 0 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
-11 'nu' '' '' 5 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (
+23 'g' '' '' 16 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (
 REAL 8 0 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
-12 'g' '' '' 5 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (
+24 'dt' '' '' 16 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (
 REAL 8 0 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
-13 'dt' '' '' 5 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (
+25 'dx' '' '' 16 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (
 REAL 8 0 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
-14 'dx' '' '' 5 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (
-REAL 8 0 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
-17 'a' '' '' 16 ((VARIABLE OUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
+28 'a' '' '' 27 ((VARIABLE OUT UNKNOWN-PROC UNKNOWN UNKNOWN 0 0
 DIMENSION DUMMY) (REAL 8 0 0 0 REAL ()) 0 0 () (2 0 ASSUMED_SHAPE (
 CONSTANT (INTEGER 4 0 0 0 INTEGER ()) 0 '1') () (CONSTANT (INTEGER 4 0 0
 0 INTEGER ()) 0 '1') ()) 0 () () () 0 0)
-18 'dx' '' '' 16 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (
+29 'dx' '' '' 27 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (
 REAL 8 0 0 0 REAL ()) 0 0 () () 0 () () () 0 0)
-19 'n' '' '' 16 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (
+30 'n' '' '' 27 ((VARIABLE IN UNKNOWN-PROC UNKNOWN UNKNOWN 0 0 DUMMY) (
 INTEGER 4 0 0 0 INTEGER ()) 0 0 () () 0 () () () 0 0)
+33 'size' '(intrinsic)' '' 4 ((PROCEDURE UNKNOWN-INTENT UNKNOWN-PROC
+UNKNOWN UNKNOWN 0 0 FUNCTION) (REAL 4 0 0 0 REAL ()) 0 0 () () 33 () ()
+() 0 0)
 )
 
-('mac_scheme' 0 2 'navierstokes' 0 3 'projection_method' 0 4
-'remplissage_poisson' 0 15 'troisieme_schema' 0 20)
+('grad_conj' 0 2 'grad_conj_opt' 0 3 'kind' 0 8 'mac_scheme' 0 9
+'mat_vect' 0 10 'navierstokes' 0 14 'projection_method' 0 15
+'remplissage_poisson' 0 26 'troisieme_schema' 0 31 'wp' 0 32)
