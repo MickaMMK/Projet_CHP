@@ -84,7 +84,7 @@ module navierstokes
      end subroutine remplissage_poisson   
 
 !méthode de projection de Chorin
-     subroutine projection_method(u,p,u_next,p_next,rho,nu,g,dt,dx,dy)
+     subroutine projection_method(u,p,u_next,p_next,rho,nu,g,dt,dx)
         implicit none
 
         ! vitesse au temps n
@@ -102,41 +102,73 @@ module navierstokes
         real(kind=8) , intent(in) :: rho , nu , g
 
         !paramètres numériques
-        real(kind=8) , intent(in) :: dt , dx , dy
-        integer :: Nx , Ny
+        real(kind=8) , intent(in) :: dt , dx 
+        integer :: N , i , j
 
-        real(kind=8) , dimension(:,:,:) , allocatable :: laplace_u , u_grad_u
+        !matrice de Poisson et second membre
+        real(kind=8) , dimension(:) , allocatable :: B
+        real(kind=8) , dimension(:,:) , allocatable :: A
 
-        Nx = size(u,1)-1
-        Ny = size(u,2)-1
+        real(kind=8) , dimension(:,:,:) , allocatable :: laplace_u , u_grad_u , grad_p
 
-        allocate(laplace_u(Nx-1,Ny-1,2),u_grad_u(Nx-1,Ny-1,2))
-        allocate(u_star(Nx,Ny,2))
+        N = size(u,1)-1
 
-        laplace_u = ( u(3:Nx+1,2:Ny,:) - 2*u(2:Nx,2:Ny,:) + u(1:Nx-1,2:Ny,:) ) / (dx*dx) &
-                   & + ( u(2:Nx,3:Ny+1,:) - 2*u(2:Nx,2:Ny,:) + u(2:Nx,1:Ny-1,:) ) / (dy*dy)
+        allocate(laplace_u(2:N,2:N,2),u_grad_u(2:N,2:N,2),grad_p(2:N,2:N,2))
+        allocate(u_star(N+1,N+1,2))
+        allocate(B(N))
+        allocate(A(N,N))
+
+        laplace_u = ( u(3:N+1,2:N,:) - 2*u(2:N,2:N,:) + u(1:N-1,2:N,:) ) / (dx*dx) &
+                   & + ( u(2:N,3:N+1,:) - 2*u(2:N,2:N,:) + u(2:N,1:N-1,:) ) / (dx*dx)
         
-      !  u_grad_u = u(2:Nx,2:Ny,1)*( u(3:Nx+1,2:Ny,:) - u(1:Nx-1,2:Ny,:) ) / (2*dx) &
-      !            & + u(2:Nx,2:Ny,2)*( u(2:Nx,3:Ny+1,:) - u(2:Nx,1:Ny-1,:) ) / (2*dy)
+        do i = 2 , N
+                do j = 2 , N
+
+                        u_grad_u(i,j,:) = u(i,j,1)*( u(i+1,j,:) - u(i-1,j,:) ) / (2*dx) &
+                        & + u(i,j,2)*( u(i,j+1,:) - u(i,j-1,:) ) / (2*dx)         
+
+                end do
+        end do
 
         u_star = 0
 
-        u_star(2:Nx,2:Ny,:) = u(2:Nx,2:Ny,:) + dt*( g + nu*laplace_u - u_grad_u )
+        u_star(2:N,2:N,:) = u(2:N,2:N,:) + dt*( g + nu*laplace_u - u_grad_u )
 
         !résolution problème de Poisson 
 
                 !remplissage matrice
-
+        call remplissage_poisson(A,dx,N)
 
                 !remplissage second membre
+        do i = 1 , N
+                do j = 1 , N
 
-
+                B(i+N*(j-1)) = (rho/(2*dt*dx))*(u_star(i+1,j+1,1)+u_star(i+1,j,1)-u_star(i,j+1,1)-u_star(i,j,1) &
+                        & +u_star(i,j+1,2)+u_star(i+1,j+1,2)-u_star(i+1,j,2)-u_star(i,j,2))
+                
+                end do
+        end do
                 !gradient conjugué
 
 
 
         !calcul vitesse au temps n+1
+
+        do i = 2 , N
+
+                do j = 2 , N
+
+                        grad_p(i,j,1) =  p_next(i,j)+p_next(i,j-1)-p_next(i-1,j)-p_next(i-1,j-1)
+                        grad_p(i,j,2) =  p_next(i,j)+p_next(i-1,j)-p_next(i-1,j-1)-p_next(i,j-1)
+
+                end do
         
+        end do
+
+        u_next = 0
+
+        u_next(2:N,2:N,:) = u_star(2:N,2:N,:) - (dt/(2*dx*rho))*grad_p(2:N,2:N,:)            
+
         deallocate(laplace_u,u_grad_u)
 
      end subroutine projection_method
