@@ -5,7 +5,7 @@ program main
   implicit none
 
   !--------------------------------
-  integer, parameter :: N = 5     !
+  integer, parameter :: N = 100   !
   integer, parameter :: tmax = 1  !
   real(8), parameter :: cfl = 0.9 !
   !--------------------------------
@@ -21,7 +21,7 @@ program main
   do i = 1, N+1
      do j = 1, N+1
         noeuds(i,j,:) = (/(i-1)*dx, (j-1)*dx/)
-        vitesses(i,j,:) = (/0.4,0.4/)
+        vitesses(i,j,:) = (/0.3,0.3/)
         if(sqrt((noeuds(i,j,1)-0.5)**2+(noeuds(i,j,2)-0.5)**2) < 0.2) then
            level(i,j) = 1.
         else
