@@ -6,7 +6,10 @@ OPTIM_FLAG = -O3
 USUAL_FLAG = 
 
 PROG = run
-SRC = transport/modules/euler.f90 transport/modules/locate.f90 transport/modules/interp.f90 transport/transport.f90 main.f90
+SRC_MOD_MOD = $(wildcard */modules/*.f90)
+SRC_MOD = $(wildcard */*.f90)
+
+SRC = $(SRC_MOD_MOD) $(SRC_MOD) main.f90
 
 usual :
 	$(F90) $(USUAL_FLAG) $(SRC) -o $(PROG)
