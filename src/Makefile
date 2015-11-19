@@ -20,5 +20,5 @@ optim :
 	rm *.mod
 
 clean :
-	@rm *.o *.mod *~ core a.out $(PROG)
-	@echo "On a fait du nettoyage"
+	rm *.o *.mod *~ core a.out $(PROG)
+	echo "On a fait du nettoyage"

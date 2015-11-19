@@ -32,13 +32,17 @@ contains
   
 
 
-  subroutine interp(sommets, coord, valeur)
+  subroutine interp(sommets, coord, valeur, methode)
 
 !!$%%%%%%% COMMENTAIRES %%%%%%%!!
 !!$
-!!$ Interpolation bilinéaire dans un carré avec pondération donnée par la distance du point à chaque sommet
+!!$ Methode = 0 : Interpolation bilinéaire dans un carré avec pondération donnée par la distance du point à chaque sommet.
 !!$
-!!$ La fonction poids calcule cette pondération
+!!$               La fonction poids calcule cette pondération.
+!!$
+!!$ Methode 1 : Interpolation de la forme phi(x,y) = aX+bY+cXY+d,
+!!$
+!!$             avec X=x-x4 et Y=y-y4 au point de coordonnées (x,y).
 !!$
 !!$%%%%%%% FIN COMMENTAIRES %%%%%%%!!
 
@@ -48,55 +52,64 @@ contains
     
     real(8),dimension(4,3),intent(in) :: sommets   ! Tableau 4*3. Chaque case contient les informations sur le sommet(x_pos, y_pos,valeur de phi à ce point)
     real(8),dimension(2),intent(in) :: coord       ! Coordonnées du point où l'on veut savoir la valeur de phi
+    integer,intent(in) :: methode
     real(8),intent(out) :: valeur
     
     integer :: sommet
     real(8) :: ponderation,p
 
-    valeur = 0
-    ponderation = 0
-
-    do sommet = 1, 4
-
-       p= poids(sommets(sommet,1),sommets(sommet,2),coord(1),coord(2))
-
-       valeur = valeur + p*sommets(sommet,3)
-
-       ponderation = ponderation + p
-
-    end do
+    real(8) :: dx,dy
+    real(8) :: a,b,c,d
     
-    valeur = valeur/ponderation
+    real(8) :: X,Y
+
+    if (methode ==0) then
 
 
+       valeur = 0
+       ponderation = 0
+
+       do sommet = 1, 4
+
+          p= poids(sommets(sommet,1),sommets(sommet,2),coord(1),coord(2))
+
+          valeur = valeur + p*sommets(sommet,3)
+
+          ponderation = ponderation + p
+
+       end do
+
+       valeur = valeur/ponderation
+
+
+    elseif (methode == 1) then
+
+
+       ! Définition de dx et dy, les dimensions du carré
+
+       dx=abs(sommets(3,1)-sommets(4,1)) !x3-x4
+       dy=abs(sommets(1,2)-sommets(4,2)) !y1-y4
+
+
+       !Définition des a,b,c et d
+
+       a=(sommets(3,3)-sommets(4,3))/dx
+       b=(sommets(1,3)-sommets(4,3))/dy
+       c=((sommets(2,3)+sommets(4,3))-sommets(1,3)-sommets(3,3))/(dx*dy)
+       d=sommets(4,3)
+
+       !Valeur de phi
+
+       X=coord(1)-sommets(4,1)
+       Y=coord(2)-sommets(4,2)
+
+       valeur = a*X+b*Y+c*X*Y+d
+
+
+    end if
 
   end subroutine interp
-
-
-  subroutine interpolation_avancee(sommets,coord,valeur)
-
-!!$%%%%%%% COMMENTAIRES %%%%%%%!!
-!!$
-!!$ Interpolation bilinéaire avancée de la forme phi(x,y) = ax + by + cxy + d 
-!!$
-!!$%%%%%%% FIN COMMENTAIRES %%%%%%%!!
-
-    implicit none
-    
-    !Déclaration des variables
-
-    real(8),dimension(4,3),intent(in) :: sommets   ! Tableau 4*3. Chaque case contient les informations sur le sommet(x_pos, y_pos,valeur de phi à ce point)
-    real(8),dimension(2),intent(in) :: coord       ! Coordonnées du point où l'on veut savoir la valeur de phi
-    real(8),intent(out) :: valeur
-
-    real(8) :: dx, dy
-
-    dx=sommets(2,1)-sommets(1,1)
-    dy=sommets(2,2)-sommets(1,2)
-
-    valeur=...
-
-  end subroutine interpolation_avancee
+  
 
 
 end module interpmod

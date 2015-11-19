@@ -24,9 +24,11 @@ contains
     real(8), dimension(2) :: coord
     real(8), dimension(4,3) :: sommets
     integer, dimension(4,2) :: indices
-    integer::i,j,k,N
+    integer :: i,j,k,N
     real(8) :: val
+    integer :: methode           !Choisir la méthode d'interpolation. 0 = interpolation de base / 1 = autre interpolation 
 
+    methode = 0
     old_level = level
     N = size(level(:,1))-1
 
@@ -45,9 +47,9 @@ contains
                 sommets(k,1:2) = noeuds(indices(k,1), indices(k,2),:)  !sommets contient pour les 4 sommets
                 sommets(k,3) = old_level(indices(k,1), indices(k,2)) !les coord x, y et la valeur du level
              end do
-             call interp(sommets, coord, val) !Interpolation de la valeur du level
+             call interp(sommets, coord, val, methode) !Interpolation de la valeur du level
              level(i,j) = val
-       end if
+          end if
 
        end do
     end do
