@@ -1,243 +1,248 @@
 module navierstokes
-     use grad_conj
-     implicit none
+  use grad_conj
+  implicit none
 
-     contains
+contains
 
-!produit matrice vecteur 
+  !produit matrice vecteur 
 
-    function mat_vect(X) result(Y)
-        implicit none
 
-        real(kind=8) , dimension(:) , intent(in) :: X
-        real(kind=8) , dimension(:) , allocatable  :: Y
+  function mat_vect(X,dx) result(Y)
+    implicit none
 
-        integer :: N , i , j
+    real(kind=8) , dimension(:) , intent(in) :: X
+    real(kind=8) :: dx
+    real(kind=8) , dimension(size(X))  :: Y
 
-        allocate(Y(N*N))
+    integer :: N , i , j
 
-        N = size(X)
+    N = int(sqrt(float(size(X))))
 
-        Y(1) = -2*X(1) + X(2) + X(N+1)
+    Y(1) = -2*X(1) + X(2) + X(N+1)
 
-        do j = 2 , N-1
+    do j = 2 , N-1
 
-                Y(j) = -3*X(j) + X(j-1) + X(j+1) + X(j+N)
+       Y(j) = -3*X(j) + X(j-1) + X(j+1) + X(j+N)
 
-        end do
+    end do
 
-        Y(N) = -2*X(N) + X(N-1) + X(2*N)
+    Y(N) = -2*X(N) + X(N-1) + X(2*N)
 
-        do i = 2 , N-1
+    do i = 2 , N-1
 
-                Y((i-1)*N+1) = -3*X((i-1)*N+1) + X((i-1)*N+2) + X((i-1)*N+N+1) + X((i-1)*N-N+1) 
-                
-                do j = 2 , N-1
+       Y((i-1)*N+1) = -3*X((i-1)*N+1) + X((i-1)*N+2) + X((i-1)*N+N+1) + X((i-1)*N-N+1) 
 
-                        Y((i-1)*N+j) = -4*X((i-1)*N+j) + X((i-1)*N+j+1) + X((i-1)*N+j-1) &
-                        &+ X((i-1)*N+j-N) + X((i-1)*N+j+N)
-                
-                end do
+       do j = 2 , N-1
 
-                Y(i*N) = -3*X(i*N) + X(i*N-1) + X(i*N+1) + X((i+1)*N) 
+          Y((i-1)*N+j) = -4*X((i-1)*N+j) + X((i-1)*N+j+1) + X((i-1)*N+j-1) &
+               &+ X((i-1)*N+j-N) + X((i-1)*N+j+N)
 
-        end do
+       end do
 
-        Y(N*(N-1)+1) = -2*X(N*(N-1)+1) + X(N*(N-1) + 2) + X(N*(N-1)-N+1)
+       Y(i*N) = -3*X(i*N) + X(i*N-1) + X(i*N+1) + X((i+1)*N) 
 
-                do j = 2 , N-1
+    end do
 
-                        Y(N*(N-1)+j) = -3*X(N*(N-1)+j) + X(N*(N-1)+j+1) + X(N*(N-1)+j-1)+ X(N*(N-1)+j-N)
+    Y(N*(N-1)+1) = -2*X(N*(N-1)+1) + X(N*(N-1) + 2) + X(N*(N-1)-N+1)
 
-                end do
-        Y(N*N) = -2*X(N*N) + X(N*N-1) + X(N*N-N)              
+    do j = 2 , N-1
 
-        deallocate(Y)
+       Y(N*(N-1)+j) = -3*X(N*(N-1)+j) + X(N*(N-1)+j+1) + X(N*(N-1)+j-1)+ X(N*(N-1)+j-N)
 
-    end function mat_vect
+    end do
 
-!remplissage de la matrice du problème de Poisson
-     subroutine remplissage_poisson(A,dx,N)
-        implicit none
+    ! on remplace la dernière ligne de la matrice par (0--------01) pour fixer la valeur de la pression au centre (N,N)
+    !Y(N*N) = -2*X(N*N) + X(N*N-1) + X(N*N-N)              
+    Y(N*N) = X(N*N)
 
-        real(kind=8) , dimension(:,:) , intent(out) :: A
-        real(kind=8) , intent(in) :: dx
-        integer , intent(in) :: N !matrice de pression de taille NxN
+    Y = (1/(dx*dx))*Y
 
-        integer :: i , j 
+    !  deallocate(Y)
 
-        A = 0
+  end function mat_vect
 
-        !premier bloc de N lignes
+  !remplissage de la matrice du problème de Poisson
+  subroutine remplissage_poisson(A,dx,N)
+    implicit none
 
-        A(1,1) = -2
-        A(1,2) = 1
-        A(1,N+1) = 1
+    real(kind=8) , dimension(:,:) , intent(out) :: A
+    real(kind=8) , intent(in) :: dx
+    integer , intent(in) :: N !matrice de pression de taille NxN
 
-        do i = 2 , N-1 
+    integer :: i , j 
 
-                A(i,i) = -3
-                A(i,i+1) = 1
-                A(i,i-1) = 1
-                A(i,i+N) = 1
+    A = 0
 
-        end do
+    !premier bloc de N lignes
 
-        A(N,N) = -2
-        A(N,N-1) = 1
-        A(N,2*N) = 1
+    A(1,1) = -2
+    A(1,2) = 1
+    A(1,N+1) = 1
 
-        !dernier bloc de N lignes
+    do i = 2 , N-1 
 
-        A(N*(N-1)+1,N*(N-1)+1) = -2
-        A(N*(N-1)+1,N*(N-1)+2) = 1
-        A(N*(N-1)+1,N*(N-1)+1-N) = 1
+       A(i,i) = -3
+       A(i,i+1) = 1
+       A(i,i-1) = 1
+       A(i,i+N) = 1
 
-        do i = 2 , N-1 
+    end do
 
-                A(N*(N-1)+i,N*(N-1)+i) = -3
-                A(N*(N-1)+i,N*(N-1)+i+1) = 1
-                A(N*(N-1)+i,N*(N-1)+i-1) = 1
-                A(N*(N-1)+i,N*(N-1)+i-N) = 1
+    A(N,N) = -2
+    A(N,N-1) = 1
+    A(N,2*N) = 1
 
-        end do
+    !dernier bloc de N lignes
 
-        A(N*N,N*N) = -2
-        A(N*N,N*N-1) = 1
-        A(N*N,N*N-N) = 1
+    A(N*(N-1)+1,N*(N-1)+1) = -2
+    A(N*(N-1)+1,N*(N-1)+2) = 1
+    A(N*(N-1)+1,N*(N-1)+1-N) = 1
 
-        !blocs génériques
+    do i = 2 , N-1 
 
-        do i = 2 , N-1
+       A(N*(N-1)+i,N*(N-1)+i) = -3
+       A(N*(N-1)+i,N*(N-1)+i+1) = 1
+       A(N*(N-1)+i,N*(N-1)+i-1) = 1
+       A(N*(N-1)+i,N*(N-1)+i-N) = 1
 
-                A((i-1)*N+1,(i-1)*N+1) = -3
-                A((i-1)*N+1,(i-1)*N+2) = 1
-                A((i-1)*N+1,(i-1)*N+1+N) = 1
-                A((i-1)*N+1,(i-1)*N+1-N) = 1
+    end do
 
-                do j = 2 , N-1
+    A(N*N,N*N) = -2
+    A(N*N,N*N-1) = 1
+    A(N*N,N*N-N) = 1
 
-                A((i-1)*N+j,(i-1)*N+j) = -4
-                A((i-1)*N+j,(i-1)*N+j+1) = 1
-                A((i-1)*N+j,(i-1)*N+j-1) = 1
-                A((i-1)*N+j,(i-1)*N+j+N) = 1
-                A((i-1)*N+j,(i-1)*N+j-N) = 1
-        
-                end do
+    !blocs génériques
 
-                A(i*N,i*N) = -3
-                A(i*N,i*N-1) = 1
-                A(i*N,i*N+N) = 1
-                A(i*N,i*N-N) = 1
+    do i = 2 , N-1
 
-        end do
+       A((i-1)*N+1,(i-1)*N+1) = -3
+       A((i-1)*N+1,(i-1)*N+2) = 1
+       A((i-1)*N+1,(i-1)*N+1+N) = 1
+       A((i-1)*N+1,(i-1)*N+1-N) = 1
 
-        A = (1./(dx*dx))*A
+       do j = 2 , N-1
 
-     end subroutine remplissage_poisson   
+          A((i-1)*N+j,(i-1)*N+j) = -4
+          A((i-1)*N+j,(i-1)*N+j+1) = 1
+          A((i-1)*N+j,(i-1)*N+j-1) = 1
+          A((i-1)*N+j,(i-1)*N+j+N) = 1
+          A((i-1)*N+j,(i-1)*N+j-N) = 1
 
-!méthode de projection de Chorin
-     subroutine projection_method(u,p,u_next,p_next,rho,nu,g,dt,dx)
-        implicit none
+       end do
 
-        ! vitesse au temps n
-        real(kind=8) , dimension(:,:,:) , intent(in) :: u
-        real(kind=8) , dimension(:,:) , intent(in) :: p
-        
-        !vitesse au temps n+1
-        real(kind=8) , dimension(:,:,:), intent(out) :: u_next
-        real(kind=8) , dimension(:,:) , intent(out) :: p_next
+       A(i*N,i*N) = -3
+       A(i*N,i*N-1) = 1
+       A(i*N,i*N+N) = 1
+       A(i*N,i*N-N) = 1
 
-        !vitesse intermédiaire
-        real(kind=8) , dimension(:,:,:) , allocatable :: u_star
+    end do
 
-        !paramètres physiques
-        real(kind=8) , intent(in) :: rho , nu , g
+    A = (1./(dx*dx))*A
 
-        !paramètres numériques
-        real(kind=8) , intent(in) :: dt , dx 
-        integer :: N , i , j
+  end subroutine remplissage_poisson
 
-        !matrice de Poisson et second membre
-        real(kind=8) , dimension(:) , allocatable :: B
-        real(kind=8) , dimension(:,:) , allocatable :: A
+  !méthode de projection de Chorin
+  subroutine projection_method(u,p,u_next,p_next,rho,nu,g,dt,dx)
+    implicit none
 
-        real(kind=8) , dimension(:,:,:) , allocatable :: laplace_u , u_grad_u , grad_p
+    ! vitesse au temps n
+    real(kind=8) , dimension(:,:,:) , intent(in) :: u
+    real(kind=8) , dimension(:,:) , intent(in) :: p
 
-        N = size(u,1)-1
+    !vitesse au temps n+1
+    real(kind=8) , dimension(:,:,:), intent(out) :: u_next
+    real(kind=8) , dimension(:,:) , intent(out) :: p_next
 
-        allocate(laplace_u(2:N,2:N,2),u_grad_u(2:N,2:N,2),grad_p(2:N,2:N,2))
-        allocate(u_star(N+1,N+1,2))
-        allocate(B(N))
-        allocate(A(N,N))
+    !vitesse intermédiaire
+    real(kind=8) , dimension(:,:,:) , allocatable :: u_star
 
-        laplace_u = ( u(3:N+1,2:N,:) - 2*u(2:N,2:N,:) + u(1:N-1,2:N,:) ) / (dx*dx) &
-                   & + ( u(2:N,3:N+1,:) - 2*u(2:N,2:N,:) + u(2:N,1:N-1,:) ) / (dx*dx)
-        
-        do i = 2 , N
-                do j = 2 , N
+    !paramètres physiques
+    real(kind=8) , intent(in) :: rho , nu , g
 
-                        u_grad_u(i,j,:) = u(i,j,1)*( u(i+1,j,:) - u(i-1,j,:) ) / (2*dx) &
-                        & + u(i,j,2)*( u(i,j+1,:) - u(i,j-1,:) ) / (2*dx)         
+    !paramètres numériques
+    real(kind=8) , intent(in) :: dt , dx 
+    integer :: N , i , j
 
-                end do
-        end do
+    !matrice de Poisson et second membre
+    real(kind=8) , dimension(:) , allocatable :: B
+    real(kind=8) , dimension(:,:) , allocatable :: A
 
-        u_star = 0
+    real(kind=8) , dimension(:,:,:) , allocatable :: laplace_u , u_grad_u , grad_p
 
-        u_star(2:N,2:N,:) = u(2:N,2:N,:) + dt*( g + nu*laplace_u - u_grad_u )
+    N = size(u,1)-1
 
-        !résolution problème de Poisson 
+    allocate(laplace_u(2:N,2:N,2),u_grad_u(2:N,2:N,2),grad_p(2:N,2:N,2))
+    allocate(u_star(N+1,N+1,2))
+    allocate(B(N))
+    allocate(A(N,N))
 
-                !remplissage matrice
-        call remplissage_poisson(A,dx,N)
+    laplace_u = ( u(3:N+1,2:N,:) - 2*u(2:N,2:N,:) + u(1:N-1,2:N,:) ) / (dx*dx) &
+         & + ( u(2:N,3:N+1,:) - 2*u(2:N,2:N,:) + u(2:N,1:N-1,:) ) / (dx*dx)
 
-                !remplissage second membre
-        do i = 1 , N
-                do j = 1 , N
+    do i = 2 , N
+       do j = 2 , N
 
-                B(i+N*(j-1)) = (rho/(2*dt*dx))*(u_star(i+1,j+1,1)+u_star(i+1,j,1)-u_star(i,j+1,1)-u_star(i,j,1) &
-                        & +u_star(i,j+1,2)+u_star(i+1,j+1,2)-u_star(i+1,j,2)-u_star(i,j,2))
-                
-                end do
-        end do
-                !gradient conjugué
+          u_grad_u(i,j,:) = u(i,j,1)*( u(i+1,j,:) - u(i-1,j,:) ) / (2*dx) &
+               & + u(i,j,2)*( u(i,j+1,:) - u(i,j-1,:) ) / (2*dx)         
 
-        call grad_conj_opt(A,P_next,B)
+       end do
+    end do
 
-        !calcul vitesse au temps n+1
+    u_star = 0
 
-        do i = 2 , N
+    u_star(2:N,2:N,:) = u(2:N,2:N,:) + dt*( g + nu*laplace_u - u_grad_u )
 
-                do j = 2 , N
+    !résolution problème de Poisson 
 
-                        grad_p(i,j,1) =  p_next(i,j)+p_next(i,j-1)-p_next(i-1,j)-p_next(i-1,j-1)
-                        grad_p(i,j,2) =  p_next(i,j)+p_next(i-1,j)-p_next(i-1,j-1)-p_next(i,j-1)
+    !remplissage matrice
+    call remplissage_poisson(A,dx,N)
 
-                end do
-        
-        end do
+    !remplissage second membre
+    do i = 1 , N
+       do j = 1 , N
 
-        u_next = 0
+          B(i+N*(j-1)) = (rho/(2*dt*dx))*(u_star(i+1,j+1,1)+u_star(i+1,j,1)-u_star(i,j+1,1)-u_star(i,j,1) &
+               & +u_star(i,j+1,2)+u_star(i+1,j+1,2)-u_star(i+1,j,2)-u_star(i,j,2))
 
-        u_next(2:N,2:N,:) = u_star(2:N,2:N,:) - (dt/(2*dx*rho))*grad_p(2:N,2:N,:)            
+       end do
+    end do
+    !gradient conjugué
 
-        deallocate(laplace_u,u_grad_u)
+    call grad_conj_opt(A,P_next,B)
 
-     end subroutine projection_method
+    !calcul vitesse au temps n+1
 
-!schéma MAC
-     subroutine MAC_scheme()
-        implicit none
+    do i = 2 , N
 
+       do j = 2 , N
 
-     end subroutine MAC_scheme
+          grad_p(i,j,1) =  p_next(i,j)+p_next(i,j-1)-p_next(i-1,j)-p_next(i-1,j-1)
+          grad_p(i,j,2) =  p_next(i,j)+p_next(i-1,j)-p_next(i-1,j-1)-p_next(i,j-1)
 
-!schéma Adams-Bashforth + Crank-Nicolson
-     subroutine troisieme_schema()
-        implicit none
+       end do
 
+    end do
 
-     end subroutine troisieme_schema
+    u_next = 0
+
+    u_next(2:N,2:N,:) = u_star(2:N,2:N,:) - (dt/(2*dx*rho))*grad_p(2:N,2:N,:)            
+
+    deallocate(laplace_u,u_grad_u)
+
+  end subroutine projection_method
+
+  !schéma MAC
+  subroutine MAC_scheme()
+    implicit none
+
+
+  end subroutine MAC_scheme
+
+  !schéma Adams-Bashforth + Crank-Nicolson
+  subroutine troisieme_schema()
+    implicit none
+
+
+  end subroutine troisieme_schema
 
 end module navierstokes
