@@ -11,8 +11,8 @@ contains
     real(wp), dimension(:,:), intent(in)                  :: A
     real(wp), dimension(:), intent(in)                    :: B
     real(wp), dimension(size(A,1)), intent(out)           :: X
-    real(wp), dimension(:,:), allocatable                 :: C
-    real(wp), dimension(:), allocatable                   :: w, r, Aw
+    real(wp), dimension(:,:), allocatable                 :: C, A_modif
+    real(wp), dimension(:), allocatable                   :: w, r, Aw, B_modif
     real(wp)                                              :: alpha, beta, eps, err
     integer                                               :: i, j, n
 
@@ -21,37 +21,40 @@ contains
     allocate(C(n,n), w(n), r(n), Aw(n))
 
     do i = 1, n
-       C(i,i) = 1._wp !/ A(i,i)
+       C(i,i) = 100._wp / A(i,i) ! matmul(A,mathieu) = produit_mat_vect(X)
     enddo
+
+    A_modif = matmul(C,A)
+    B_modif = matmul(C,B)
 
     eps = 0.0001_wp
     err = 1._wp
 
     X = 1._wp
-    r = B - matmul(A,X)
+    r = B_modif - matmul(A_modif,X)
     err = sqrt(dot_product(r,r))
     w = r
-    alpha = dot_product(w,r) / dot_product(matmul(A,w),r)
+    alpha = dot_product(w,r) / dot_product(matmul(A_modif,w),r)
     i = 0
 
     do while(eps<err)
 
        i = i + 1
-       print*,i
-
        X = X + alpha*w
-       r = B - matmul(A,X)
-       Aw = matmul(A,w)
+       r = B_modif - matmul(A_modif,X)
+       Aw = matmul(A_modif,w)
        err = sqrt(dot_product(r,r))
-       beta = dot_product(Aw,r) / dot_product(Aw,w)
+       beta = dot_product(Aw-w,r) / dot_product(Aw,w)
        w = r - beta*w
-       alpha = dot_product(w,r) / dot_product(matmul(A,w),w)
+       alpha = dot_product(w,r) / dot_product(matmul(A_modif,w),w)
 
        if(i==1000) then
           err = 0._wp
        endif
 
     enddo
+
+    print*,i
 
   end subroutine grad_conj_opt
 
