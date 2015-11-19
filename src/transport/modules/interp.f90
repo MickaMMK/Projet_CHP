@@ -73,4 +73,30 @@ contains
   end subroutine interp
 
 
+  subroutine interpolation_avancee(sommets,coord,valeur)
+
+!!$%%%%%%% COMMENTAIRES %%%%%%%!!
+!!$
+!!$ Interpolation bilinéaire avancée de la forme phi(x,y) = ax + by + cxy + d 
+!!$
+!!$%%%%%%% FIN COMMENTAIRES %%%%%%%!!
+
+    implicit none
+    
+    !Déclaration des variables
+
+    real(8),dimension(4,3),intent(in) :: sommets   ! Tableau 4*3. Chaque case contient les informations sur le sommet(x_pos, y_pos,valeur de phi à ce point)
+    real(8),dimension(2),intent(in) :: coord       ! Coordonnées du point où l'on veut savoir la valeur de phi
+    real(8),intent(out) :: valeur
+
+    real(8) :: dx, dy
+
+    dx=sommets(2,1)-sommets(1,1)
+    dy=sommets(2,2)-sommets(1,2)
+
+    valeur=...
+
+  end subroutine interpolation_avancee
+
+
 end module interpmod
