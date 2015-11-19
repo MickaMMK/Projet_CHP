@@ -37,7 +37,7 @@ contains
     alpha = dot_product(w,r) / dot_product(matmul(A_modif,w),r)
     i = 0
 
-    do while(eps<err)
+    do while((eps<err).and.(i<1000))
 
        i = i + 1
        X = X + alpha*w
@@ -47,10 +47,6 @@ contains
        beta = dot_product(Aw-w,r) / dot_product(Aw,w)
        w = r - beta*w
        alpha = dot_product(w,r) / dot_product(matmul(A_modif,w),w)
-
-       if(i==1000) then
-          err = 0._wp
-       endif
 
     enddo
 
