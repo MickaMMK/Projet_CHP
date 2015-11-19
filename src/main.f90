@@ -1,6 +1,7 @@
 program main
 
   use transportmod
+  use modmainmod
   
   implicit none
 
@@ -19,63 +20,28 @@ program main
   character(len=1) :: c, d, u
   
   dx = 1./N
+  
+  call initcoord(noeuds, centres)
+
+  vitesses = 0.3
+  pressions = 1.
+  
   do i = 1, N+1
      do j = 1, N+1
-        noeuds(i,j,:) = (/(i-1)*dx, (j-1)*dx/)
-        vitesses(i,j,:) = (/0.3,0.3/)
-        if(sqrt((noeuds(i,j,1)-0.5)**2+(noeuds(i,j,2)-0.5)**2) < 0.2) then
-           level(i,j) = 0.
-        else
-           level(i,j) = 1.
-        endif
-     end do
-  end do
-
-  do i = 1, N
-     do j = 1, N
-        centres(i,j,:) = (/((i-1)+0.5)*dx, ((j-1)+0.5)*dx/)
-        pressions(i,j) = 1.
+        level(i,j) = exp(-((float(i)-(N+1)/2)**2+(float(j)-(N+1)/2)**2)/(N+1))
      end do
   end do
 
   dt = cfl*dx/maxval(vitesses)
   Niter = ceiling(tmax/dt)
 
-  open(unit=22, file="noeuds000.txt", status="replace")
-
-  write(22,*) '"x", "y", "level"'
-  
-  do i = 1, N+1
-     do j = 1, N+1
-        write(22,*) noeuds(i,j,1),", ", noeuds(i,j,2),", ", level(i,j)
-     end do
-  end do
-
-  close(22)
+  call write(0, noeuds, level)
 
   do k = 1, Niter
 
      call transport(noeuds, vitesses, level, dt, dx)
 
-     ci = int(k/100)
-     di = modulo(int(k/10),10)
-     ui = modulo(k,10)
-
-     write(c,'(I1)') ci
-     write(d,'(I1)') di
-     write(u,'(I1)') ui
-
-     open(unit=12, file="noeuds"//c//d//u//".txt", status="replace")
-
-     write(12,*) '"x", "y", "level"'
-
-     do i = 1, N+1
-        do j = 1, N+1
-           write(12,*) noeuds(i,j,1),", ", noeuds(i,j,2),", ", level(i,j)
-        end do
-     end do
-     
-     close(12)
+     call write(k, noeuds, level)
 
   end do
 
