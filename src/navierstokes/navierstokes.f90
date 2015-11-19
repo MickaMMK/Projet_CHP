@@ -141,28 +141,28 @@ module navierstokes
         implicit none
 
         ! vitesse au temps n
-        real(kind=8) , dimension(:,:,:) , intent(in) :: u
-        real(kind=8) , dimension(:,:) , intent(in) :: p
+        real(kind=8), dimension(:,:,:), intent(in)       :: u
+        real(kind=8), dimension(:,:), intent(in)         :: p
         
         !vitesse au temps n+1
-        real(kind=8) , dimension(:,:,:), intent(out) :: u_next
-        real(kind=8) , dimension(:,:) , intent(out) :: p_next
+        real(kind=8), dimension(:,:,:), intent(out)      :: u_next
+        real(kind=8), dimension(:,:), intent(out)        :: p_next
 
         !vitesse intermédiaire
-        real(kind=8) , dimension(:,:,:) , allocatable :: u_star
+        real(kind=8), dimension(:,:,:), allocatable      :: u_star
 
         !paramètres physiques
-        real(kind=8) , intent(in) :: rho , nu , g
+        real(kind=8), intent(in)                         :: rho, nu, g
 
         !paramètres numériques
-        real(kind=8) , intent(in) :: dt , dx 
-        integer :: N , i , j
+        real(kind=8), intent(in)                         :: dt, dx 
+        integer :: N, i, j
 
         !matrice de Poisson et second membre
-        real(kind=8) , dimension(:) , allocatable :: B
-        real(kind=8) , dimension(:,:) , allocatable :: A
+        real(kind=8), dimension(:), allocatable          :: B
+        real(kind=8), dimension(:,:), allocatable        :: A
 
-        real(kind=8) , dimension(:,:,:) , allocatable :: laplace_u , u_grad_u , grad_p
+        real(kind=8), dimension(:,:,:), allocatable      :: laplace_u , u_grad_u , grad_p
 
         N = size(u,1)-1
 

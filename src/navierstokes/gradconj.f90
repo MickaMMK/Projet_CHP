@@ -54,6 +54,30 @@ contains
 
   end subroutine grad_conj_opt
 
+
+
+subroutine grad_conj_test(A,X,B)
+    implicit none
+
+   !real(wp), dimension(:,:), intent(in)                  :: A
+    real(wp), dimension(:), intent(in)                    :: B
+    real(wp), dimension(size(A,1)), intent(out)           :: X
+    real(wp), dimension(:,:), allocatable                 :: C, A_modif
+    real(wp), dimension(:), allocatable                   :: w, r, Aw, B_modif
+    real(wp)                                              :: alpha, beta, eps, err
+    integer                                               :: i, j, n
+
+    n = size(A,1)
+
+   ! X = 
+
+
+
+  end subroutine grad_conj_test
+
+
+
+
 end module grad_conj
 
 
