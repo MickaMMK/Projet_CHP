@@ -7,7 +7,7 @@ program main
   implicit none
 
   !--------------------------------
-  integer, parameter :: N = 100   !
+  integer, parameter :: N = 3     !
   integer, parameter :: tmax = 1  !
   real(8), parameter :: cfl = 0.9 !
   !--------------------------------
@@ -31,7 +31,7 @@ program main
   call initcoord(noeuds, centres)
 
   vitesses = 0.3
-  pressions = 1.
+  pressions = 1.013D5
   
   do i = 1, N+1
      do j = 1, N+1
@@ -54,7 +54,7 @@ program main
      nu = int(level+0.5)*nu_air + (1-int(level+0.5))*nu_eau
      rho_centre = (rho(1:N,1:N)+rho(1:N,2:N+1)+rho(2:N+1,1:N)+rho(2:N+1,2:N+1))/4
 
-     call projection_method(vitesses, pression, rho, rho_centre, nu, g, dt, dx) 
+     call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx) 
 
      call transport(noeuds, vitesses, level, dt, dx)
 

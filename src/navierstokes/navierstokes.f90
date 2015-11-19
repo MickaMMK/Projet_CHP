@@ -4,63 +4,6 @@ module navierstokes
 
 contains
 
-  !produit matrice vecteur 
-
-
-  function mat_vect(X,dx) result(Y)
-    implicit none
-
-    real(kind=8) , dimension(:) , intent(in) :: X
-    real(kind=8) :: dx
-    real(kind=8) , dimension(size(X))  :: Y
-
-    integer :: N , i , j
-
-    N = int(sqrt(float(size(X))))
-
-    Y(1) = -2*X(1) + X(2) + X(N+1)
-
-    do j = 2 , N-1
-
-       Y(j) = -3*X(j) + X(j-1) + X(j+1) + X(j+N)
-
-    end do
-
-    Y(N) = -2*X(N) + X(N-1) + X(2*N)
-
-    do i = 2 , N-1
-
-       Y((i-1)*N+1) = -3*X((i-1)*N+1) + X((i-1)*N+2) + X((i-1)*N+N+1) + X((i-1)*N-N+1) 
-
-       do j = 2 , N-1
-
-          Y((i-1)*N+j) = -4*X((i-1)*N+j) + X((i-1)*N+j+1) + X((i-1)*N+j-1) &
-               &+ X((i-1)*N+j-N) + X((i-1)*N+j+N)
-
-       end do
-
-       Y(i*N) = -3*X(i*N) + X(i*N-1) + X(i*N+1) + X((i+1)*N) 
-
-    end do
-
-    Y(N*(N-1)+1) = -2*X(N*(N-1)+1) + X(N*(N-1) + 2) + X(N*(N-1)-N+1)
-
-    do j = 2 , N-1
-
-       Y(N*(N-1)+j) = -3*X(N*(N-1)+j) + X(N*(N-1)+j+1) + X(N*(N-1)+j-1)+ X(N*(N-1)+j-N)
-
-    end do
-
-    ! on remplace la dernière ligne de la matrice par (0--------01) pour fixer la valeur de la pression au centre (N,N)
-    !Y(N*N) = -2*X(N*N) + X(N*N-1) + X(N*N-N)              
-    Y(N*N) = X(N*N)
-
-    Y = (1/(dx*dx))*Y
-
-    !  deallocate(Y)
-
-  end function mat_vect
-
   !remplissage de la matrice du problème de Poisson
   subroutine remplissage_poisson(A,dx,N)
     implicit none
@@ -157,8 +100,8 @@ contains
     real(kind=8), dimension(:,:,:), allocatable      :: u_star
 
     !paramètres physiques
-    real(kind=8), intent(in)                         :: nu, g
-    real(kind=8), dimension(:,:), intent(in)         :: rho, rho_centre
+    real(kind=8), intent(in)                         :: g
+    real(kind=8), dimension(:,:), intent(in)         :: rho, rho_centre, nu
 
     !paramètres numériques
     real(kind=8), intent(in)                         :: dt, dx 
@@ -166,7 +109,6 @@ contains
 
     !matrice de Poisson et second membre
     real(kind=8), dimension(:), allocatable          :: B
-    real(kind=8), dimension(:,:), allocatable        :: A
 
     real(kind=8), dimension(:,:,:), allocatable      :: laplace_u , u_grad_u , grad_p
 
@@ -174,8 +116,7 @@ contains
 
     allocate(laplace_u(2:N,2:N,2),u_grad_u(2:N,2:N,2),grad_p(2:N,2:N,2))
     allocate(u_star(N+1,N+1,2))
-    allocate(B(N))
-    allocate(A(N,N))
+    allocate(B(N*N))
 
     laplace_u = ( u(3:N+1,2:N,:) - 2*u(2:N,2:N,:) + u(1:N-1,2:N,:) ) / (dx*dx) &
          & + ( u(2:N,3:N+1,:) - 2*u(2:N,2:N,:) + u(2:N,1:N-1,:) ) / (dx*dx)
@@ -191,22 +132,26 @@ contains
 
     u_star = 0
 
-    u_star(2:N,2:N,:) = u(2:N,2:N,:) + dt*( g + nu(2:N,2:N)*laplace_u - u_grad_u )
+    do i = 1, size(u_star,3)
+       u_star(2:N,2:N,i) = u(2:N,2:N,i) + dt*( g + nu(2:N,2:N)*laplace_u(:,:,i) - u_grad_u(:,:,i) )
+    end do
 
     !résolution problème de Poisson 
-
-    !remplissage matrice
-    call remplissage_poisson(A,dx,N)
 
     !remplissage second membre
     do i = 1 , N
        do j = 1 , N
-
+          
           B(i+N*(j-1)) = (rho_centre(i,j)/(2*dt*dx))*(u_star(i+1,j+1,1)+u_star(i+1,j,1)-u_star(i,j+1,1)-u_star(i,j,1) &
                & +u_star(i,j+1,2)+u_star(i+1,j+1,2)-u_star(i+1,j,2)-u_star(i,j,2))
 
        end do
     end do
+
+    B = 0.
+    B(N*N-3) = 1.
+    B(N*N-1) = 1.
+    B(N*N) = 1.
     !gradient conjugué
 
     call grad_conj_opt(P_next,B,dx)
@@ -226,7 +171,9 @@ contains
 
     u_next = 0
 
-    u_next(2:N,2:N,:) = u_star(2:N,2:N,:) - (dt/(2*dx*rho(2:N,2:N)))*grad_p(2:N,2:N,:)  
+    do i = 1, size(u_next,3)
+       u_next(2:N,2:N,i) = u_star(2:N,2:N,i) - (dt/(2*dx*rho(2:N,2:N)))*grad_p(2:N,2:N,i)
+    end do
 
     u = u_next
     p = p_next
