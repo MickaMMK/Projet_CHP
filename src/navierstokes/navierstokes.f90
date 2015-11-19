@@ -142,22 +142,23 @@ contains
   end subroutine remplissage_poisson
 
   !méthode de projection de Chorin
-  subroutine projection_method(u,p,u_next,p_next,rho,nu,g,dt,dx)
+  subroutine projection_method(u,p,rho,rho_centre,nu,g,dt,dx)
     implicit none
 
     ! vitesse au temps n
-    real(kind=8), dimension(:,:,:), intent(in)       :: u
-    real(kind=8), dimension(:,:), intent(in)         :: p
+    real(kind=8), dimension(:,:,:), intent(inout)       :: u
+    real(kind=8), dimension(:,:), intent(inout)         :: p
 
     !vitesse au temps n+1
-    real(kind=8), dimension(:,:,:), intent(out)      :: u_next
-    real(kind=8), dimension(:,:), intent(out)        :: p_next
+    real(kind=8), dimension(size(u,1),size(u,2),size(u,3))                   :: u_next
+    real(kind=8), dimension(size(p,1),size(p,2))                             :: p_next
 
     !vitesse intermédiaire
     real(kind=8), dimension(:,:,:), allocatable      :: u_star
 
     !paramètres physiques
-    real(kind=8), intent(in)                         :: rho, nu, g
+    real(kind=8), intent(in)                         :: nu, g
+    real(kind=8), dimension(:,:), intent(in)         :: rho, rho_centre
 
     !paramètres numériques
     real(kind=8), intent(in)                         :: dt, dx 
@@ -190,7 +191,7 @@ contains
 
     u_star = 0
 
-    u_star(2:N,2:N,:) = u(2:N,2:N,:) + dt*( g + nu*laplace_u - u_grad_u )
+    u_star(2:N,2:N,:) = u(2:N,2:N,:) + dt*( g + nu(2:N,2:N)*laplace_u - u_grad_u )
 
     !résolution problème de Poisson 
 
@@ -201,14 +202,14 @@ contains
     do i = 1 , N
        do j = 1 , N
 
-          B(i+N*(j-1)) = (rho/(2*dt*dx))*(u_star(i+1,j+1,1)+u_star(i+1,j,1)-u_star(i,j+1,1)-u_star(i,j,1) &
+          B(i+N*(j-1)) = (rho_centre(i,j)/(2*dt*dx))*(u_star(i+1,j+1,1)+u_star(i+1,j,1)-u_star(i,j+1,1)-u_star(i,j,1) &
                & +u_star(i,j+1,2)+u_star(i+1,j+1,2)-u_star(i+1,j,2)-u_star(i,j,2))
 
        end do
     end do
     !gradient conjugué
 
-    call grad_conj_opt(A,P_next,B)
+    call grad_conj_opt(P_next,B,dx)
 
     !calcul vitesse au temps n+1
 
@@ -225,8 +226,11 @@ contains
 
     u_next = 0
 
-    u_next(2:N,2:N,:) = u_star(2:N,2:N,:) - (dt/(2*dx*rho))*grad_p(2:N,2:N,:)            
+    u_next(2:N,2:N,:) = u_star(2:N,2:N,:) - (dt/(2*dx*rho(2:N,2:N)))*grad_p(2:N,2:N,:)  
 
+    u = u_next
+    p = p_next
+    
     deallocate(laplace_u,u_grad_u)
 
   end subroutine projection_method
