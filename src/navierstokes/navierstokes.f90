@@ -93,14 +93,14 @@ contains
     real(kind=8), dimension(:,:), intent(inout)         :: p
 
     !vitesse au temps n+1
-    real(kind=8), dimension(size(u,1),size(u,2),size(u,3))                   :: u_next
-    real(kind=8), dimension(size(p,1),size(p,2))                             :: p_next
+    real(kind=8), dimension(size(u,1),size(u,2),size(u,3))  :: u_next
+    real(kind=8), dimension(size(p,1),size(p,2))            :: p_next
 
     !vitesse intermédiaire
     real(kind=8), dimension(:,:,:), allocatable      :: u_star
 
     !paramètres physiques
-    real(kind=8), intent(in)                         :: g
+    real(kind=8), dimension(2), intent(in)           :: g
     real(kind=8), dimension(:,:), intent(in)         :: rho, rho_centre, nu
 
     !paramètres numériques
@@ -133,7 +133,7 @@ contains
     u_star = 0
 
     do i = 1, size(u_star,3)
-       u_star(2:N,2:N,i) = u(2:N,2:N,i) + dt*( g + nu(2:N,2:N)*laplace_u(:,:,i) - u_grad_u(:,:,i) )
+       u_star(2:N,2:N,i) = u(2:N,2:N,i) + dt*( g(i) + nu(2:N,2:N)*laplace_u(:,:,i) - u_grad_u(:,:,i) )
     end do
 
     !résolution problème de Poisson 
@@ -148,13 +148,11 @@ contains
        end do
     end do
 
-    B = 0.
-    B(N*N-3) = 1.
-    B(N*N-1) = 1.
-    B(N*N) = 1.
     !gradient conjugué
 
+    print*, B
     call grad_conj_opt(P_next,B,dx)
+    !print*, p_next
 
     !calcul vitesse au temps n+1
 

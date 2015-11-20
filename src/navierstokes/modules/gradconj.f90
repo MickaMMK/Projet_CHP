@@ -51,6 +51,7 @@ contains
        beta = dot_product(Aw-w,r) / dot_product(Aw,w)
        w = r - beta*w
        alpha = dot_product(w,r) / dot_product(mat_vect(w),w)
+       print*, "err = ",err
 
     enddo
 

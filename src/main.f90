@@ -7,7 +7,7 @@ program main
   implicit none
 
   !--------------------------------
-  integer, parameter :: N = 3     !
+  integer, parameter :: N = 3    !
   integer, parameter :: tmax = 1  !
   real(8), parameter :: cfl = 0.9 !
   !--------------------------------
@@ -16,7 +16,8 @@ program main
   real(8), dimension(N,N,2) :: centres
   real(8), dimension(N+1,N+1) :: level, rho, nu
   real(8), dimension(N,N) :: pressions, rho_centre
-  real(8) :: dx, dt, rho_air, rho_eau, nu_air, nu_eau, g
+  real(8), dimension(2) :: g
+  real(8) :: dx, dt, rho_air, rho_eau, nu_air, nu_eau
   integer :: i, j, Niter, ci, di, ui, k
   character(len=1) :: c, d, u
   
@@ -26,11 +27,17 @@ program main
   rho_eau = 1000.
   nu_air = 15E-6
   nu_eau = 0.9E-6
-  g = -9.81
+  g = (/0.,-9.81/)
   
   call initcoord(noeuds, centres)
 
-  vitesses = 0.3
+  vitesses = 0.
+!!$  do i = 2, N
+!!$     do j = 2, N
+!!$        vitesses(i,j,:) = (/-(noeuds(i,j,1)-0.5)**2+0.25,-(noeuds(i,j,2)-0.5)**2+0.25/)
+!!$        print*, vitesses(i,j,:)
+!!$     end do
+!!$  end do
   pressions = 1.013D5
   
   do i = 1, N+1
@@ -43,7 +50,8 @@ program main
      end do
   end do
 
-  dt = cfl*dx/maxval(vitesses)
+  dt = cfl*dx/1!maxval(vitesses)
+  print*, "dt = ",dt
   Niter = ceiling(tmax/dt)
 
   call write(0, noeuds, level)
