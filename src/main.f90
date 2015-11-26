@@ -7,7 +7,7 @@ program main
   implicit none
 
   !--------------------------------
-  integer, parameter :: N = 3    !
+  integer, parameter :: N = 50     !
   integer, parameter :: tmax = 1  !
   real(8), parameter :: cfl = 0.9 !
   !--------------------------------
@@ -16,6 +16,8 @@ program main
   real(8), dimension(N,N,2) :: centres
   real(8), dimension(N+1,N+1) :: level, rho, nu
   real(8), dimension(N,N) :: pressions, rho_centre
+  integer, dimension(N) :: ipvt
+  integer :: info
   real(8), dimension(2) :: g
   real(8) :: dx, dt, rho_air, rho_eau, nu_air, nu_eau
   integer :: i, j, Niter, ci, di, ui, k
@@ -32,6 +34,8 @@ program main
   call initcoord(noeuds, centres)
 
   vitesses = 0.
+!!$  vitesses(2:N,2:N,:) = 0.3
+
 !!$  do i = 2, N
 !!$     do j = 2, N
 !!$        vitesses(i,j,:) = (/-(noeuds(i,j,1)-0.5)**2+0.25,-(noeuds(i,j,2)-0.5)**2+0.25/)
@@ -50,23 +54,27 @@ program main
      end do
   end do
 
-  dt = cfl*dx/1!maxval(vitesses)
+  dt = cfl*dx/10!maxval(vitesses)
   print*, "dt = ",dt
   Niter = ceiling(tmax/dt)
 
   call write(0, noeuds, level)
 
   do k = 1, Niter
-
+  
      rho = int(level+0.5)*rho_air + (1-int(level+0.5))*rho_eau
      nu = int(level+0.5)*nu_air + (1-int(level+0.5))*nu_eau
      rho_centre = (rho(1:N,1:N)+rho(1:N,2:N+1)+rho(2:N+1,1:N)+rho(2:N+1,2:N+1))/4
+     !print*, pressions
 
-     call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx) 
+     print*, 'Projection'
+     call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level)
 
+     print*, 'Transport'
      call transport(noeuds, vitesses, level, dt, dx)
 
-     call write(k, noeuds, level)
+     print*, 'Ecriture'
+     call write(k, noeuds, rho)
 
   end do
 

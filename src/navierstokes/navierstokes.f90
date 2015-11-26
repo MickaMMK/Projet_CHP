@@ -50,9 +50,7 @@ contains
 
     end do
 
-    A(N*N,N*N) = -2
-    A(N*N,N*N-1) = 1
-    A(N*N,N*N-N) = 1
+    A(N*N,N*N) = dx*dx
 
     !blocs génériques
 
@@ -72,7 +70,7 @@ contains
           A((i-1)*N+j,(i-1)*N+j-N) = 1
 
        end do
-
+       
        A(i*N,i*N) = -3
        A(i*N,i*N-1) = 1
        A(i*N,i*N+N) = 1
@@ -80,21 +78,21 @@ contains
 
     end do
 
-    A = (1./(dx*dx))*A
-
   end subroutine remplissage_poisson
 
   !méthode de projection de Chorin
-  subroutine projection_method(u,p,rho,rho_centre,nu,g,dt,dx)
+  subroutine projection_method(u,p,rho,rho_centre,nu,g,dt,dx,level)
     implicit none
 
     ! vitesse au temps n
     real(kind=8), dimension(:,:,:), intent(inout)       :: u
     real(kind=8), dimension(:,:), intent(inout)         :: p
+    real(kind=8), dimension(:,:), intent(in)         :: level
 
     !vitesse au temps n+1
     real(kind=8), dimension(size(u,1),size(u,2),size(u,3))  :: u_next
     real(kind=8), dimension(size(p,1),size(p,2))            :: p_next
+    real(kind=8), dimension(size(p,1)*size(p,2))            :: p_next_vect
 
     !vitesse intermédiaire
     real(kind=8), dimension(:,:,:), allocatable      :: u_star
@@ -108,15 +106,20 @@ contains
     integer :: N, i, j
 
     !matrice de Poisson et second membre
-    real(kind=8), dimension(:), allocatable          :: B
+    real(kind=8), dimension(:,:), allocatable        :: A
+    real(kind=8), dimension(:), allocatable          :: B, ipvt
 
     real(kind=8), dimension(:,:,:), allocatable      :: laplace_u , u_grad_u , grad_p
+
+    integer                                          :: info, im, jm, km, k
+
+    character(len=3)                                 :: nom
 
     N = size(u,1)-1
 
     allocate(laplace_u(2:N,2:N,2),u_grad_u(2:N,2:N,2),grad_p(2:N,2:N,2))
     allocate(u_star(N+1,N+1,2))
-    allocate(B(N*N))
+    allocate(B(N*N),ipvt(N*N),A(N*N,N*N))
 
     laplace_u = ( u(3:N+1,2:N,:) - 2*u(2:N,2:N,:) + u(1:N-1,2:N,:) ) / (dx*dx) &
          & + ( u(2:N,3:N+1,:) - 2*u(2:N,2:N,:) + u(2:N,1:N-1,:) ) / (dx*dx)
@@ -138,23 +141,49 @@ contains
 
     !résolution problème de Poisson 
 
+    call remplissage_poisson(A,dx,N)
+
     !remplissage second membre
     do i = 1 , N
        do j = 1 , N
-          
+
           B(i+N*(j-1)) = (rho_centre(i,j)/(2*dt*dx))*(u_star(i+1,j+1,1)+u_star(i+1,j,1)-u_star(i,j+1,1)-u_star(i,j,1) &
                & +u_star(i,j+1,2)+u_star(i+1,j+1,2)-u_star(i+1,j,2)-u_star(i,j,2))
 
        end do
     end do
 
+    B(N*N) = 1.013D5
+
+    do i = 1, N
+       do j = 1, N
+          p_next_vect(i+(j-1)*N) = p_next(i,j)
+       end do
+    end do
+
+
     !gradient conjugué
 
-    print*, B
-    call grad_conj_opt(P_next,B,dx)
-    !print*, p_next
+    B = B*dx*dx
+
+    print*, p
+
+!!$    call grad_conj_opt(P_next_vect,B,dx)
+
+    call DGETRF(N*N, N*N, A, N*N, ipvt, info)
+    call DGETRS('N', N*N, 1, A, N*N, ipvt, B, N*N, info)
+    P_next_vect = B
+
+    print*,
+    print*, P_next_vect
 
     !calcul vitesse au temps n+1
+
+    do i = 1, N
+       do j = 1, N
+           p_next(i,j) = p_next_vect(i+(j-1)*N)
+       end do
+    end do
 
     do i = 2 , N
 
@@ -168,10 +197,35 @@ contains
     end do
 
     u_next = 0
+    
+    print*, 
+    print*, grad_p(:,:,2)
 
     do i = 1, size(u_next,3)
        u_next(2:N,2:N,i) = u_star(2:N,2:N,i) - (dt/(2*dx*rho(2:N,2:N)))*grad_p(2:N,2:N,i)
     end do
+   
+    im = 1
+    jm = 1
+    km = 1
+    do i = 1, N
+       do j = 1, N
+          do k = 1, 2
+             if(abs(u_next(i,j,k)) > abs(u_next(im,jm,km))) then
+                im = i
+                jm = j
+                km = k
+             end if
+          end do                   ! DU COUP LEVEL A ETE AJOUTE POUR L'INSTANT
+       enddo
+    end do
+    if(level(im,jm) > 0.5) then
+       nom = "air"
+    else
+       nom = "eau"
+    end if
+    print*, "Maximum de la vitesse atteint en (",im,",",jm,",",km,") = ",u_next(im,jm,km)," dans l'",nom
+    read*,
 
     u = u_next
     p = p_next

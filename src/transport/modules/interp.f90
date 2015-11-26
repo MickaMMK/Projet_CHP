@@ -50,7 +50,7 @@ contains
     
     !Déclaration des variables
     
-    real(8),dimension(4,3),intent(in) :: sommets   ! Tableau 4*3. Chaque case contient les informations sur le sommet(x_pos, y_pos,valeur de phi à ce point)
+    real(8),dimension(:,:),intent(in) :: sommets   ! Tableau ?*3. Chaque case contient les informations sur le sommet(x_pos, y_pos,valeur de phi à ce point)
     real(8),dimension(2),intent(in) :: coord       ! Coordonnées du point où l'on veut savoir la valeur de phi
     integer,intent(in) :: methode
     real(8),intent(out) :: valeur
@@ -66,10 +66,10 @@ contains
     if (methode ==0) then
 
 
-       valeur = 0
-       ponderation = 0
+       valeur = 0.
+       ponderation = 0.
 
-       do sommet = 1, 4
+       do sommet = 1, size(sommets,1)
 
           p= poids(sommets(sommet,1),sommets(sommet,2),coord(1),coord(2))
 
@@ -82,7 +82,7 @@ contains
        valeur = valeur/ponderation
 
 
-    elseif (methode == 1) then
+    elseif (methode == 1 .AND. size(sommets,1) == 4) then
 
 
        ! Définition de dx et dy, les dimensions du carré
@@ -105,6 +105,11 @@ contains
 
        valeur = a*X+b*Y+c*X*Y+d
 
+    else
+
+       print*, "================================================="
+       print*, "Méthode inconnue ou appel de méthode 1 hors carré"
+       print*, "================================================="
 
     end if
 
