@@ -16,7 +16,8 @@ program main
   real(8), dimension(N,N,2) :: centres
   real(8), dimension(N+1,N+1) :: level, rho, nu
   real(8), dimension(N,N) :: pressions, rho_centre
-  integer, dimension(N) :: ipvt
+  real(8), dimension(N*N,N*N) :: A
+  integer, dimension(N*N) :: ipvt
   integer :: info
   real(8), dimension(2) :: g
   real(8) :: dx, dt, rho_air, rho_eau, nu_air, nu_eau
@@ -25,10 +26,10 @@ program main
   
   dx = 1./N
 
-  rho_air = 1.
-  rho_eau = 1000.
-  nu_air = 15E-6
-  nu_eau = 0.9E-6
+  rho_air = 1000. !1.
+  rho_eau = 1000. !1000.
+  nu_air = 0.9E-6 !15-6
+  nu_eau = 0.9E-6 !0.9E-6
   g = (/0.,-9.81/)
   
   call initcoord(noeuds, centres)
@@ -48,19 +49,30 @@ program main
      do j = 1, N+1
         if(sqrt((noeuds(i,j,1)-0.5)**2+(noeuds(i,j,2)-0.5)**2) < 0.2) then
            level(i,j) = 0.
+           vitesses(i,j,2) = -1.
         else
            level(i,j) = 1.
         end if
      end do
   end do
 
-  dt = cfl*dx/10!maxval(vitesses)
+  print*, maxval(abs(vitesses))
+  dt = cfl*dx/5
+  !dt = cfl*min(dx/maxval(abs(vitesses)),dx*dx/(2*max(nu_air,nu_eau)))
   print*, "dt = ",dt
   Niter = ceiling(tmax/dt)
 
-  call write(0, noeuds, level)
+  call write("level", 0, noeuds, level)
+  call write("vitesses_x", 0, noeuds, vitesses(:,:,1))
+  call write("vitesses_y", 0, noeuds, vitesses(:,:,2))
+  call write("pressions", 0, centres, pressions)
+
+  call remplissage_poisson(A,dx,N)
+  call DGETRF(N*N, N*N, A, N*N, ipvt, info)
 
   do k = 1, Niter
+
+     print*, "Itération ",k," sur ",Niter
   
      rho = int(level+0.5)*rho_air + (1-int(level+0.5))*rho_eau
      nu = int(level+0.5)*nu_air + (1-int(level+0.5))*nu_eau
@@ -68,13 +80,18 @@ program main
      !print*, pressions
 
      print*, 'Projection'
-     call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level)
+     call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level,A,ipvt)
 
      print*, 'Transport'
      call transport(noeuds, vitesses, level, dt, dx)
 
      print*, 'Ecriture'
-     call write(k, noeuds, rho)
+     call write("level", k, noeuds, level)
+     call write("vitesses_x", k, noeuds, vitesses(:,:,1))
+     call write("vitesses_y", k, noeuds, vitesses(:,:,2))
+     call write("pressions", k, centres, pressions)
+
+     !dt = cfl*min(dx/maxval(vitesses),dx*dx/(2*max(nu_air,nu_eau)))
 
   end do
 

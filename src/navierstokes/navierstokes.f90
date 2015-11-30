@@ -81,7 +81,7 @@ contains
   end subroutine remplissage_poisson
 
   !méthode de projection de Chorin
-  subroutine projection_method(u,p,rho,rho_centre,nu,g,dt,dx,level)
+  subroutine projection_method(u,p,rho,rho_centre,nu,g,dt,dx,level,A,ipvt)
     implicit none
 
     ! vitesse au temps n
@@ -106,8 +106,9 @@ contains
     integer :: N, i, j
 
     !matrice de Poisson et second membre
-    real(kind=8), dimension(:,:), allocatable        :: A
-    real(kind=8), dimension(:), allocatable          :: B, ipvt
+    real(kind=8), dimension(:,:), intent(in)         :: A
+    integer, dimension(:), intent(in)          :: ipvt
+    real(kind=8), dimension(:), allocatable          :: B
 
     real(kind=8), dimension(:,:,:), allocatable      :: laplace_u , u_grad_u , grad_p
 
@@ -119,7 +120,7 @@ contains
 
     allocate(laplace_u(2:N,2:N,2),u_grad_u(2:N,2:N,2),grad_p(2:N,2:N,2))
     allocate(u_star(N+1,N+1,2))
-    allocate(B(N*N),ipvt(N*N),A(N*N,N*N))
+    allocate(B(N*N))
 
     laplace_u = ( u(3:N+1,2:N,:) - 2*u(2:N,2:N,:) + u(1:N-1,2:N,:) ) / (dx*dx) &
          & + ( u(2:N,3:N+1,:) - 2*u(2:N,2:N,:) + u(2:N,1:N-1,:) ) / (dx*dx)
@@ -141,7 +142,7 @@ contains
 
     !résolution problème de Poisson 
 
-    call remplissage_poisson(A,dx,N)
+!!$    call remplissage_poisson(A,dx,N)
 
     !remplissage second membre
     do i = 1 , N
@@ -166,18 +167,11 @@ contains
 
     B = B*dx*dx
 
-    print*, p
-
 !!$    call grad_conj_opt(P_next_vect,B,dx)
 
-    call DGETRF(N*N, N*N, A, N*N, ipvt, info)
+!!$    call DGETRF(N*N, N*N, A, N*N, ipvt, info)
     call DGETRS('N', N*N, 1, A, N*N, ipvt, B, N*N, info)
-    P_next_vect = B
-
-    print*,
-    print*, P_next_vect
-
-    !calcul vitesse au temps n+1
+    P_next_vect = B    !calcul vitesse au temps n+1
 
     do i = 1, N
        do j = 1, N
@@ -197,9 +191,6 @@ contains
     end do
 
     u_next = 0
-    
-    print*, 
-    print*, grad_p(:,:,2)
 
     do i = 1, size(u_next,3)
        u_next(2:N,2:N,i) = u_star(2:N,2:N,i) - (dt/(2*dx*rho(2:N,2:N)))*grad_p(2:N,2:N,i)
@@ -225,7 +216,7 @@ contains
        nom = "eau"
     end if
     print*, "Maximum de la vitesse atteint en (",im,",",jm,",",km,") = ",u_next(im,jm,km)," dans l'",nom
-    read*,
+!!$    read*,
 
     u = u_next
     p = p_next
