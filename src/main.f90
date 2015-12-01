@@ -8,7 +8,7 @@ program main
 
   !--------------------------------
   integer, parameter :: N = 50     !
-  integer, parameter :: tmax = 1  !
+  integer, parameter :: tmax = 5  !
   real(8), parameter :: cfl = 0.9 !
   !--------------------------------
 
@@ -28,8 +28,8 @@ program main
 
   rho_air = 1000. !1.
   rho_eau = 1000. !1000.
-  nu_air = 0.9E-6 !15-6
-  nu_eau = 0.9E-6 !0.9E-6
+  nu_air = 0.9E-2 !15-6
+  nu_eau = 0.9E-2 !0.9E-6
   g = (/0.,-9.81/)
   
   call initcoord(noeuds, centres)
@@ -49,7 +49,7 @@ program main
      do j = 1, N+1
         if(sqrt((noeuds(i,j,1)-0.5)**2+(noeuds(i,j,2)-0.5)**2) < 0.2) then
            level(i,j) = 0.
-           vitesses(i,j,2) = -1.
+           vitesses(i,j,2) = -2.
         else
            level(i,j) = 1.
         end if
@@ -57,8 +57,8 @@ program main
   end do
 
   print*, maxval(abs(vitesses))
-  dt = cfl*dx/5
-  !dt = cfl*min(dx/maxval(abs(vitesses)),dx*dx/(2*max(nu_air,nu_eau)))
+  !dt = cfl*dx/5
+  dt = cfl*min(dx/maxval(abs(vitesses)),dx*dx/(4*max(nu_air,nu_eau)),2*min(nu_air,nu_eau)/maxval(abs(vitesses))**2)
   print*, "dt = ",dt
   Niter = ceiling(tmax/dt)
 
