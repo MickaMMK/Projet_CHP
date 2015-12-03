@@ -80,7 +80,7 @@ contains
 
   end subroutine remplissage_poisson
 
-  !méthode de projection de Chorin
+  !méthode de projection de Chorin monophasique
   subroutine projection_method(u,p,rho,rho_centre,nu,g,dt,dx,level,A,ipvt)
     implicit none
 
@@ -225,18 +225,14 @@ contains
 
   end subroutine projection_method
 
-  !schéma MAC
-  subroutine MAC_scheme()
+
+  !méthode de projection diphasique
+  subroutine projection_method_diphasique()
     implicit none
 
-
-  end subroutine MAC_scheme
-
-  !schéma Adams-Bashforth + Crank-Nicolson
-  subroutine troisieme_schema()
-    implicit none
+    
 
 
-  end subroutine troisieme_schema
+  end subroutine projection_method_diphasique
 
 end module navierstokes
