@@ -52,6 +52,7 @@ program main
   call initcoord(noeuds, centres)
 
   vitesses = 0.
+  vitesses(:,N+1,1) = 2.
 !!$  vitesses(2:N,2:N,:) = 0.3
 
 !!$  do i = 2, N
@@ -64,9 +65,8 @@ program main
   
   do i = 1, N+1
      do j = 1, N+1
-        if(sqrt((noeuds(i,j,1)-0.5)**2+(noeuds(i,j,2)-0.5)**2) < 0.2) then
+        if(sqrt((noeuds(i,j,1)-0.25)**2+(noeuds(i,j,2)-0.75)**2) < 0.2) then
            level(i,j) = 0.
-           vitesses(i,j,2) = -2.
         else
            level(i,j) = 1.
         end if

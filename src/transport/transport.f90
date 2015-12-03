@@ -47,7 +47,8 @@ contains
                 sommets(k,1:2) = noeuds(indices(k,1), indices(k,2),:)  !sommets contient pour les 4 sommets
                 sommets(k,3) = old_level(indices(k,1), indices(k,2)) !les coord x, y et la valeur du level
              end do
-             call interp(sommets, coord, val, methode) !Interpolation de la valeur du level
+             !call interp(sommets, coord, val, methode) !Interpolation de la valeur du level
+             call noyau_interp(sommets,coord,dx,val)
              level(i,j) = val
           end if
 
