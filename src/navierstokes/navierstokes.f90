@@ -1,9 +1,25 @@
+!------------------------------------------------------------------------------
+! ENSEIRB-MATMECA Colonne Splash 2015(C) - All rights reserved
+!------------------------------------------------------------------------------
+
 module navierstokes
   use grad_conj
   implicit none
 
 contains
 
+   !---------------------------------------------------------------------------
+   !> @brief
+   !> Compute the \f$ N^2 \times N^2 \f$ Poisson's matrix with the pression condition on the last line.
+   !
+   !> @author 
+   !> Corentin PRIGENT, engineer student at ENSEIRB-MATMECA, Bordeaux, FR.
+   !
+   !> @param[in] dx, N      
+   !> @param[out] A      
+   !> @return The Poisson's matrix
+   !--------------------------------------------------------------------------- 
+ 
   !remplissage de la matrice du problème de Poisson
   subroutine remplissage_poisson(A,dx,N)
     implicit none
