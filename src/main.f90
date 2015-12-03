@@ -57,7 +57,7 @@ program main
   end do
 
   print*, maxval(abs(vitesses))
-  dt = cfl*dx/5
+  dt = cfl*dx/3
   !dt = cfl*min(dx/maxval(abs(vitesses)),dx*dx/(2*max(nu_air,nu_eau)))
   print*, "dt = ",dt
   Niter = ceiling(tmax/dt)
