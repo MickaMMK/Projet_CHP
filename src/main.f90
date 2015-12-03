@@ -1,3 +1,20 @@
+!------------------------------------------------------------------------------
+! NASA/GSFC, Software Integration & Visualization Office, Code 610.3
+!------------------------------------------------------------------------------
+!
+! MODULE: Module Name
+!
+!> @author
+!> Module Author Name and Affiliation
+!
+! DESCRIPTION: 
+!> Brief description of module.
+!
+! REVISION HISTORY:
+! DD Mmm YYYY - Initial Version
+! TODO_dd_mmm_yyyy - TODO_describe_appropriate_changes - TODO_name
+!------------------------------------------------------------------------------
+
 program main
 
   use transportmod
@@ -96,5 +113,23 @@ program main
   end do
 
 contains
+
+   !---------------------------------------------------------------------------  
+   !> @author 
+   !> Routine Author Name and Affiliation.
+   !
+   ! DESCRIPTION: 
+   !> Brief description of routine. 
+   !> @brief
+   !> Flow method (rate of change of position) used by integrator.
+   !> Compute \f$ \frac{d\lambda}{dt} , \frac{d\phi}{dt},  \frac{dz}{dt} \f$
+   !
+   ! REVISION HISTORY:
+   ! TODO_dd_mmm_yyyy - TODO_describe_appropriate_changes - TODO_name
+   !
+   !> @param[in] inParam      
+   !> @param[out] outParam      
+   !> @return returnValue
+   !--------------------------------------------------------------------------- 
 
 end program main

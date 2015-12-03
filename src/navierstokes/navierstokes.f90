@@ -1,9 +1,25 @@
+!------------------------------------------------------------------------------
+! ENSEIRB-MATMECA Colonne Splash 2015(C) - All rights reserved
+!------------------------------------------------------------------------------
+
 module navierstokes
   use grad_conj
   implicit none
 
 contains
 
+   !---------------------------------------------------------------------------
+   !> @brief
+   !> Compute the \f$ N^2 \times N^2 \f$ Poisson's matrix with the pression condition on the last line.
+   !
+   !> @author 
+   !> Corentin PRIGENT, engineer student at ENSEIRB-MATMECA, Bordeaux, FR.
+   !
+   !> @param[in] dx, N      
+   !> @param[out] A      
+   !> @return The Poisson's matrix
+   !--------------------------------------------------------------------------- 
+ 
   !remplissage de la matrice du problème de Poisson
   subroutine remplissage_poisson(A,dx,N)
     implicit none
@@ -116,6 +132,8 @@ contains
 
     character(len=3)                                 :: nom
 
+    real(8) :: data
+
     N = size(u,1)-1
 
     allocate(laplace_u(2:N,2:N,2),u_grad_u(2:N,2:N,2),grad_p(2:N,2:N,2))
@@ -202,20 +220,22 @@ contains
     do i = 1, N
        do j = 1, N
           do k = 1, 2
-             if(abs(u_next(i,j,k)) > abs(u_next(im,jm,km))) then
-                im = i
-                jm = j
-                km = k
-             end if
+!!$             if(abs(u_next(i,j,k)) > abs(u_next(im,jm,km))) then
+!!$                im = i
+!!$                jm = j
+!!$                km = k
+!!$             end if
+             data = data + u_next(i,j,k)
           end do                   ! DU COUP LEVEL A ETE AJOUTE POUR L'INSTANT
        enddo
     end do
-    if(level(im,jm) > 0.5) then
-       nom = "air"
-    else
-       nom = "eau"
-    end if
-    print*, "Maximum de la vitesse atteint en (",im,",",jm,",",km,") = ",u_next(im,jm,km)," dans l'",nom
+!!$    if(level(im,jm) > 0.5) then
+!!$       nom = "air"
+!!$    else
+!!$       nom = "eau"
+!!$    end if
+!!$    print*, "Maximum de la vitesse atteint en (",im,",",jm,",",km,") = ",u_next(im,jm,km)," dans l'",nom
+    print*, data
 !!$    read*,
 
     u = u_next
