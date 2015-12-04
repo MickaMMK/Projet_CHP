@@ -20,7 +20,7 @@ contains
    !> @return 
    !--------------------------------------------------------------------------- 
 
-  !méthode de projection de Chorin
+  !méthode de projection de Chorin monophasique
   subroutine projection_method(u,p,rho,rho_centre,nu,g,dt,dx,level,A,ipvt)
     implicit none
 
@@ -47,7 +47,7 @@ contains
 
     !matrice de Poisson et second membre
     real(kind=8), dimension(:,:), intent(in)         :: A
-    integer, dimension(:), intent(in)          :: ipvt
+    integer, dimension(:), intent(in)                :: ipvt
     real(kind=8), dimension(:), allocatable          :: B
 
     real(kind=8), dimension(:,:,:), allocatable      :: laplace_u , u_grad_u , grad_p
@@ -77,6 +77,7 @@ contains
     end do
 
     u_star = 0
+    u_star(:,N+1,1) = 5.
 
     do i = 1, size(u_star,3)
        u_star(2:N,2:N,i) = u(2:N,2:N,i) + dt*( g(i) + nu(2:N,2:N)*laplace_u(:,:,i) - u_grad_u(:,:,i) )
@@ -133,6 +134,7 @@ contains
     end do
 
     u_next = 0
+    u_next(:,N+1,1) = 5.
 
     do i = 1, size(u_next,3)
        u_next(2:N,2:N,i) = u_star(2:N,2:N,i) - (dt/(2*dx*rho(2:N,2:N)))*grad_p(2:N,2:N,i)
@@ -168,5 +170,14 @@ contains
     deallocate(laplace_u,u_grad_u)
 
   end subroutine projection_method
+
+  !méthode de projection diphasique
+  subroutine projection_method_diphasique()
+    implicit none
+
+    
+
+
+  end subroutine projection_method_diphasique
 
 end module projection_methodmod

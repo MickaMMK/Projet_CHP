@@ -114,7 +114,63 @@ contains
     end if
 
   end subroutine interp
-  
+
+
+  subroutine noyau_interp(sommets, coord, dx, valeur)
+
+!!$%%%%%%% COMMENTAIRES %%%%%%%!!
+!!$
+!!$ Noyau d'interpolation M'_{4} . CF Inviscid axisymmetrization of an elliptical vortex
+!!$
+!!$%%%%%%% FIN COMMENTAIRES %%%%%%%!!
+
+    implicit none
+    
+    real(8),dimension(:,:),intent(in) :: sommets   ! Tableau ?*3. Chaque case contient les informations sur le sommet(x_pos, y_pos,valeur de phi à ce point)
+    real(8),dimension(2),intent(in)   :: coord     ! Coordonnées du point où l'on veut savoir la valeur de phi
+    real(8),intent(in)                :: dx        ! Pas d'espace
+    real(8),intent(out)               :: valeur
+
+    integer                           :: sommet
+    real(8)                           :: ponderation
+    real(8)                           :: dist
+
+
+    ponderation = 0.
+    valeur = 0.
+
+    
+    do sommet = 1, size(sommets,1)
+       
+       dist = sqrt( (sommets(sommet,1)-coord(1))**2 + (sommets(sommet,2)-coord(2))**2 )/dx
+       
+       if ( dist <= 2.0 ) then
+
+          
+          if ( dist <= 1.0 ) then
+             
+             valeur = valeur + sommets(sommet,3)*((2-dist)**3- (4*(1-dist)**3))/6!sommets(sommet,3)*(1.0 - (5.0*dist**2)/2.0 + (3.0*dist**3)/2.0)
+
+             ponderation = ponderation +((2-dist)**3- (4*(1-dist)**3))/6 !(1.0 - (5.0*dist**2)/2.0 + (3.0*dist**3)/2.0)
+             
+          else
+
+             valeur = valeur + sommets(sommet,3)*((2-dist)**3/6) ! sommets(sommet,3)*0.5*(1.0-dist)*(2.0-dist)**2
+
+             ponderation = ponderation + ((2-dist)**3/6)!0.5*(1.0-dist)*(2.0-dist)**2
+
+          end if
+
+       end if
+
+    end do
+
+
+    valeur = valeur/ponderation
+
+
+  end subroutine noyau_interp
+
 
 
 end module interpmod
