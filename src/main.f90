@@ -19,7 +19,8 @@ program main
 
   use transportmod
   use modmainmod
-  use navierstokes
+  use projection_methodmod
+  use remplissage_poissonmod
   
   implicit none
 
