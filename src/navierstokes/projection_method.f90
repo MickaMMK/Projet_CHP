@@ -77,7 +77,7 @@ contains
     end do
 
     u_star = 0
-    u_star(:,N+1,1) = 5.
+!!$    u_star(:,N+1,1) = 1.
 
     do i = 1, size(u_star,3)
        u_star(2:N,2:N,i) = u(2:N,2:N,i) + dt*( g(i) + nu(2:N,2:N)*laplace_u(:,:,i) - u_grad_u(:,:,i) )
@@ -134,7 +134,7 @@ contains
     end do
 
     u_next = 0
-    u_next(:,N+1,1) = 5.
+!!$    u_next(:,N+1,1) = 1.
 
     do i = 1, size(u_next,3)
        u_next(2:N,2:N,i) = u_star(2:N,2:N,i) - (dt/(2*dx*rho(2:N,2:N)))*grad_p(2:N,2:N,i)
@@ -146,22 +146,22 @@ contains
     do i = 1, N
        do j = 1, N
           do k = 1, 2
-!!$             if(abs(u_next(i,j,k)) > abs(u_next(im,jm,km))) then
-!!$                im = i
-!!$                jm = j
-!!$                km = k
-!!$             end if
-             data = data + u_next(i,j,k)
+             if(abs(u_next(i,j,k)) > abs(u_next(im,jm,km))) then
+                im = i
+                jm = j
+                km = k
+             end if
+!!$             data = data + u_next(i,j,k)
           end do                   ! DU COUP LEVEL A ETE AJOUTE POUR L'INSTANT
        enddo
     end do
-!!$    if(level(im,jm) > 0.5) then
-!!$       nom = "air"
-!!$    else
-!!$       nom = "eau"
-!!$    end if
-!!$    print*, "Maximum de la vitesse atteint en (",im,",",jm,",",km,") = ",u_next(im,jm,km)," dans l'",nom
-    print*, data
+    if(level(im,jm) > 0.5) then
+       nom = "air"
+    else
+       nom = "eau"
+    end if
+    print*, "Maximum de la vitesse atteint en (",im,",",jm,",",km,") = ",u_next(im,jm,km)," dans l'",nom
+!!$    print*, data
 !!$    read*,
 
     u = u_next

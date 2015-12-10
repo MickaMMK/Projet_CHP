@@ -116,7 +116,7 @@ contains
   end subroutine interp
 
 
-  subroutine noyau_interp(sommets, coord, dx, valeur)
+  subroutine noyau_interp(noeuds, level, coord, dx, valeur)
 
 !!$%%%%%%% COMMENTAIRES %%%%%%%!!
 !!$
@@ -126,12 +126,13 @@ contains
 
     implicit none
     
-    real(8),dimension(:,:),intent(in) :: sommets   ! Tableau ?*3. Chaque case contient les informations sur le sommet(x_pos, y_pos,valeur de phi à ce point)
+    real(8),dimension(:,:),intent(in) :: noeuds    ! Tableau ?*2. Chaque case contient les coordonnées
+    real(8),dimension(:),intent(in)   :: level     ! Tableau ?. Chaque case contient le level
     real(8),dimension(2),intent(in)   :: coord     ! Coordonnées du point où l'on veut savoir la valeur de phi
     real(8),intent(in)                :: dx        ! Pas d'espace
     real(8),intent(out)               :: valeur
 
-    integer                           :: sommet
+    integer                           :: i, j
     real(8)                           :: ponderation
     real(8)                           :: dist
 
@@ -140,24 +141,27 @@ contains
     valeur = 0.
 
     
-    do sommet = 1, size(sommets,1)
+    do i = 1, size(noeuds,1)
        
-       dist = sqrt( (sommets(sommet,1)-coord(1))**2 + (sommets(sommet,2)-coord(2))**2 )/dx
-       
+       dist = sqrt( (noeuds(i,1)-coord(1))**2 + (noeuds(i,2)-coord(2))**2 )/dx
+
        if ( dist <= 2.0 ) then
 
-          
           if ( dist <= 1.0 ) then
-             
-             valeur = valeur + sommets(sommet,3)*((2-dist)**3- (4*(1-dist)**3))/6!sommets(sommet,3)*(1.0 - (5.0*dist**2)/2.0 + (3.0*dist**3)/2.0)
 
-             ponderation = ponderation +((2-dist)**3- (4*(1-dist)**3))/6 !(1.0 - (5.0*dist**2)/2.0 + (3.0*dist**3)/2.0)
-             
+             valeur = valeur + level(i)*((2-dist)**3- (4*(1-dist)**3))/6
+             !valeur = valeur + level(i,j)*(1.0 - (5.0*dist**2)/2.0 + (3.0*dist**3)/2.0)
+
+             ponderation = ponderation +((2-dist)**3- (4*(1-dist)**3))/6
+             !ponderation = ponderation +(1.0 - (5.0*dist**2)/2.0 + (3.0*dist**3)/2.0)
+
           else
 
-             valeur = valeur + sommets(sommet,3)*((2-dist)**3/6) ! sommets(sommet,3)*0.5*(1.0-dist)*(2.0-dist)**2
+             valeur = valeur + level(i)*((2-dist)**3/6)
+             !valeur = valeur + level(i,j)*0.5*(1.0-dist)*(2.0-dist)**2
 
-             ponderation = ponderation + ((2-dist)**3/6)!0.5*(1.0-dist)*(2.0-dist)**2
+             ponderation = ponderation + ((2-dist)**3/6)
+             !ponderation = ponderation + 0.5*(1.0-dist)*(2.0-dist)**2
 
           end if
 
@@ -170,6 +174,38 @@ contains
 
 
   end subroutine noyau_interp
+
+  function vect1(array) result(vector)
+
+    implicit none
+    
+    real(8), dimension(:,:), intent(in) :: array
+    real(8), dimension(size(array,1)*size(array,2)) :: vector
+    integer :: i, j
+
+    do i = 1, size(array,1)
+       do j = 1, size(array,2)
+          vector(i+size(array,1)*(j-1)) = array(i,j)
+       end do
+    end do
+
+  end function vect1
+
+  function vect2(array) result(vector)
+
+    implicit none
+    
+    real(8), dimension(:,:,:), intent(in) :: array
+    real(8), dimension(size(array,1)*size(array,2),size(array,3)) :: vector
+    integer :: i, j
+
+    do i = 1, size(array,1)
+       do j = 1, size(array,2)
+          vector(i+size(array,1)*(j-1),:) = array(i,j,:)
+       end do
+    end do
+
+  end function vect2
 
 
 

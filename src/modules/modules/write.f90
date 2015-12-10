@@ -9,8 +9,8 @@ contains
     implicit none
 
     integer, intent(in) :: num
-    real(8), dimension(:,:,:), intent(in) :: coord
-    real(8), dimension(:,:), intent(in) :: valeur
+    real(8), dimension(:,:), intent(in) :: coord
+    real(8), dimension(:), intent(in) :: valeur
     character(len=*), intent(in) :: nom
     integer :: ci, di, ui, i, j
     character(len=1) :: c, d, u
@@ -28,9 +28,7 @@ contains
     write(22,*) '"x", "y", "level"'
 
     do i = 1, size(coord,1)
-       do j = 1, size(coord,2)
-          write(22,*) coord(i,j,1)+0.1,", ", coord(i,j,2)+0.1,", ", valeur(i,j)
-       end do
+       write(22,*) coord(i,1)+0.1,", ", coord(i,2)+0.1,", ", valeur(i)
     end do
 
     close(22)
