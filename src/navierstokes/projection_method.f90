@@ -277,13 +277,13 @@ contains
 
     !résolution problème de Poisson 
     !ecoulement diphasique ==> probleme différent
-!!$    call remplissage_poisson(A,dx,N)
+    ! fonction mat_vect_diphasique( X, dx, rho) avec rho aux centres des mailles sous forme vecteur taille N*N
 
     !remplissage second membre
     do i = 1 , N
        do j = 1 , N
 
-          B(i+N*(j-1)) = (rho_centre(i,j)/(2*dt*dx))*(u_star(i+1,j+1,1)+u_star(i+1,j,1)-u_star(i,j+1,1)-u_star(i,j,1) &
+          B(i+N*(j-1)) = 1./(2*dt*dx)*(u_star(i+1,j+1,1)+u_star(i+1,j,1)-u_star(i,j+1,1)-u_star(i,j,1) &
                & +u_star(i,j+1,2)+u_star(i+1,j+1,2)-u_star(i+1,j,2)-u_star(i,j,2))
 
        end do
@@ -305,7 +305,7 @@ contains
 !!$    call grad_conj_opt(P_next_vect,B,dx)
 
 !!$    call DGETRF(N*N, N*N, A, N*N, ipvt, info)
-    call DGETRS('N', N*N, 1, A, N*N, ipvt, B, N*N, info)
+  !  call DGETRS('N', N*N, 1, A, N*N, ipvt, B, N*N, info)
     P_next_vect = B    !calcul vitesse au temps n+1
 
     do i = 1, N
