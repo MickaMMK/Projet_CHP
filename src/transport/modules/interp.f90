@@ -169,7 +169,7 @@ contains
 
     end do
 
-    if (ponderation < 1d-8) then  
+    if (ponderation > 1d-8) then  
        valeur = valeur/ponderation
     end if
 
