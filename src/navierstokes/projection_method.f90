@@ -187,7 +187,7 @@ contains
 
 
   !méthode de projection diphasique
-  subroutine projection_method_diphasique(u,p,rho,rho_centre,mu,g,dt,dx,level,A,ipv)
+  subroutine projection_method_diphasique(u,p,rho,rho_centre,mu,g,dt,dx,level,A,ipvt)
     implicit none
 
      ! vitesse au temps n
@@ -223,7 +223,8 @@ contains
 
     character(len=3)                                                              :: nom
 
-    real(8)                                                                       :: data
+    real(8)                                                                       :: data, temp, temp2
+
 
     N = size(u,1)-1
 
@@ -239,21 +240,31 @@ contains
        do j = 2 , N
 
           !première composante
-          temp = 0.25*(u(i,j,2) + u(i+1,j,2) + u(i,j+1,2) + u(i+1,j+1,2) ) - 0.25*(u(i,j,2) + u(i-1,j,2) + u(i,j+1,2) + u(i-1,j+1,2)) + u(i,j+1,1) - u(i,j,1)
+          temp = 0.25*(u(i,j,2) + u(i+1,j,2) + u(i,j+1,2) + u(i+1,j+1,2)) - &
+               & 0.25*(u(i,j,2) + u(i-1,j,2) + u(i,j+1,2) + u(i-1,j+1,2)) + &
+               & u(i,j+1,1) - u(i,j,1)
 
-          temp2 = 0.25*(u(i,j,2)+u(i+1,j,2)+u(i,j-1,2)+u(i+1,j-1,2)) - 0.25*(u(i,j,2)+u(i-1,j-1,2)+u(i-1,j,2)+u(i,j-1,2)) + u(i,j,1) - u(i,j-1,1)
+          temp2 = 0.25*(u(i,j,2)+u(i+1,j,2)+u(i,j-1,2)+u(i+1,j-1,2)) - &
+               & 0.25*(u(i,j,2)+u(i-1,j-1,2)+u(i-1,j,2)+u(i,j-1,2)) + & 
+               & u(i,j,1) - u(i,j-1,1)
 
-          laplace_u(i,j,1) = ((mu(i+1,j) + mu (i,j))*(u(i+1,j,1) - u(i,j,1)) - (mu(i,j) + mu(i-1,j))*(u(i,j,1) - u(i-1,j,1)))/(rho(i,j)*dx*dx) &
-               & + 0.5*((mu(i,j)+mu(i,j+1))*temp - (mu(i,j-1)+mu(i,j))*temp2)/(rho(i,j)*dx*dx)
+          laplace_u(i,j,1) = ((mu(i+1,j) + mu (i,j))*(u(i+1,j,1) - u(i,j,1)) - (mu(i,j) + mu(i-1,j))*(u(i,j,1) - u(i-1,j,1))) &
+               & /(rho(i,j)*dx*dx) + &
+               & 0.5*((mu(i,j)+mu(i,j+1))*temp - (mu(i,j-1)+mu(i,j))*temp2)/(rho(i,j)*dx*dx)
 
           !deuxième composante
 
-          temp = u(i+1,j,2) - u(i,j,2) + 0.25*(u(i,j,1)+u(i+1,j,1)+u(i,j+1,1)+u(i+1,j+1,1)) - 0.25*(u(i,j,1)+u(i+1,j,1)+u(i,j-1,1)+u(i+1,j-1,1))
+          temp = u(i+1,j,2) - u(i,j,2) + &
+               & 0.25*(u(i,j,1)+u(i+1,j,1)+u(i,j+1,1)+u(i+1,j+1,1)) - &
+               & 0.25*(u(i,j,1)+u(i+1,j,1)+u(i,j-1,1)+u(i+1,j-1,1))
           
-          temp2 = u(i,j,2) - u(i-1,j,2) + 0.25*(u(i,j,1)+u(i-1,j,1)+u(i,j+1,1)+u(i-1,j+1,1)) - 0.25*(u(i,j,1)+u(i+1,j,1)+u(i+1,j)+u(i+1,j+1))
+          temp2 = u(i,j,2) - u(i-1,j,2) + &
+               & 0.25*(u(i,j,1)+u(i-1,j,1)+u(i,j+1,1)+u(i-1,j+1,1)) - &
+               & 0.25*(u(i,j,1)+u(i+1,j,1)+u(i+1,j,1)+u(i+1,j+1,1))
 
-          laplace(i,j,2) = ((mu(i,j+1)+mu(i,j))*(u(i,j+1,2)-u(i,j,2))-(mu(i,j)+mu(i,j-1))*(u(i,j,2)-u(i,j-1,2)))/(rho(i,j)*dx*dx)  &
-               & + 0.5*((mu(i+1,j)+mu(i,j))*temp - (mu(i-1,j)+mu(i,j))*temp2)/(rho(i,j)*dx*dx)
+          laplace_u(i,j,2) = ((mu(i,j+1)+mu(i,j))*(u(i,j+1,2)-u(i,j,2))-(mu(i,j)+mu(i,j-1))*(u(i,j,2)-u(i,j-1,2)))&
+               & /(rho(i,j)*dx*dx) + &
+               & 0.5*((mu(i+1,j)+mu(i,j))*temp - (mu(i-1,j)+mu(i,j))*temp2)/(rho(i,j)*dx*dx)
 
 
        end do
@@ -273,7 +284,7 @@ contains
     u_star(:,N+1,1) = 5.
 
     do i = 1, size(u_star,3)
-       u_star(2:N,2:N,i) = u(2:N,2:N,i) + dt*( g(i) + nu(2:N,2:N)*laplace_u(:,:,i) - u_grad_u(:,:,i) )
+       u_star(2:N,2:N,i) = u(2:N,2:N,i) + dt*( g(i) + mu(2:N,2:N)*laplace_u(:,:,i) - u_grad_u(:,:,i) )
     end do
 
     !résolution problème de Poisson 

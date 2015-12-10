@@ -169,9 +169,9 @@ contains
 
     end do
 
-
-    valeur = valeur/ponderation
-
+    if (ponderation > 1d-8) then  
+       valeur = valeur/ponderation
+    end if
 
   end subroutine noyau_interp
 
