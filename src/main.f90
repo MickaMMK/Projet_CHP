@@ -95,22 +95,22 @@ program main
      !==============================================================================================
      !========================================== EULERIEN ==========================================
 
-!!$     print*, 'Projection'
-!!$     call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
-!!$
-!!$     print*, 'Transport'
-!!$     call transport_level(noeuds, vitesses, level, dt, dx)
-!!$
-!!$     print*, "somme des lvl = ",sum(1-level)
-!!$     print*, "somme des lvl après valeur fixée à 0 ou 1 = ",sum(int(1-level+0.5))
-!!$     
-!!$     print*, 'Ecriture'
-!!$     call write("level", k, noeuds, level)
-!!$     call write("vitesses_x", k, noeuds, vitesses(:,:,1))
-!!$     call write("vitesses_y", k, noeuds, vitesses(:,:,2))
-!!$     call write("pressions", k, centres, pressions)
-!!$
-!!$     !dt = cfl*min(dx/maxval(vitesses),dx*dx/(2*max(nu_air,nu_eau)))
+     print*, 'Projection'
+     call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
+
+     print*, 'Transport'
+     call transport_level(noeuds, vitesses, level, dt, dx)
+
+     !print*, "somme des lvl = ",sum(1-level)
+     !print*, "somme des lvl après valeur fixée à 0 ou 1 = ",sum(int(1-level+0.5))
+     
+     print*, 'Ecriture'
+     call write("level", k, vect2(noeuds), vect1(level))
+     call write("vitesses_x", k, vect2(noeuds), vect1(vitesses(:,:,1)))
+     call write("vitesses_y", k, vect2(noeuds), vect1(vitesses(:,:,2)))
+     call write("pressions", k, vect2(centres), vect1(pressions))
+
+     !dt = cfl*min(dx/maxval(vitesses),dx*dx/(2*max(nu_air,nu_eau)))
 
      !==============================================================================================
 
@@ -118,37 +118,37 @@ program main
      !==============================================================================================
      !========================================= LAGRANGIEN =========================================
 
-     print*, 'Projection'
-     call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
-
-     do i = 1, (N-1)*(N-1)
-           call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
-           call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,2)), particules(i,:), dx, vitesses_particules(i,2))
-     end do
-
-     call transport_particules(particules, vitesses_particules, dt, dx)
-
-     do i = 2, N
-        do j = 2, N
-           call noyau_interp(particules, level_particules, noeuds(i,j,:), dx, level(i,j))
-        end do
-     end do
-
-     if(mod(k,50) == 0) then
-        particules = vect2(noeuds(2:N,2:N,:))
-        vitesses_particules = vect2(vitesses(2:N,2:N,:))
-        level_particules = vect1(level(2:N,2:N))
-        !level_particules = int(level(2:N,2:N)+0.5)
-     end if
-
-     call write("level_particules", k, particules, level_particules)
-     call write("vitesses_x_particules", k, particules, vitesses_particules(:,1))
-     call write("vitesses_y_particules", k, particules, vitesses_particules(:,2))
-
-     call write("level", k, vect2(noeuds), vect1(level))
-     call write("vitesses_x", k, vect2(noeuds), vect1(vitesses(:,:,1)))
-     call write("vitesses_y", k, vect2(noeuds), vect1(vitesses(:,:,2)))
-     call write("pressions", k, vect2(centres), vect1(pressions))
+!!$     print*, 'Projection'
+!!$     call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
+!!$
+!!$     do i = 1, (N-1)*(N-1)
+!!$           call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
+!!$           call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,2)), particules(i,:), dx, vitesses_particules(i,2))
+!!$     end do
+!!$
+!!$     call transport_particules(particules, vitesses_particules, dt, dx)
+!!$
+!!$     do i = 2, N
+!!$        do j = 2, N
+!!$           call noyau_interp(particules, level_particules, noeuds(i,j,:), dx, level(i,j))
+!!$        end do
+!!$     end do
+!!$
+!!$     if(mod(k,50) == 0) then
+!!$        particules = vect2(noeuds(2:N,2:N,:))
+!!$        vitesses_particules = vect2(vitesses(2:N,2:N,:))
+!!$        level_particules = vect1(level(2:N,2:N))
+!!$        !level_particules = int(level(2:N,2:N)+0.5)
+!!$     end if
+!!$
+!!$     call write("level_particules", k, particules, level_particules)
+!!$     call write("vitesses_x_particules", k, particules, vitesses_particules(:,1))
+!!$     call write("vitesses_y_particules", k, particules, vitesses_particules(:,2))
+!!$
+!!$     call write("level", k, vect2(noeuds), vect1(level))
+!!$     call write("vitesses_x", k, vect2(noeuds), vect1(vitesses(:,:,1)))
+!!$     call write("vitesses_y", k, vect2(noeuds), vect1(vitesses(:,:,2)))
+!!$     call write("pressions", k, vect2(centres), vect1(pressions))
 
      !==============================================================================================
 
