@@ -165,9 +165,9 @@ contains
 
     end do
 
-
-    valeur = valeur/ponderation
-
+    if (ponderation .NE. 0.) then  
+       valeur = valeur/ponderation
+    end if
 
   end subroutine noyau_interp
 
