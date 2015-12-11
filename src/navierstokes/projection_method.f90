@@ -191,38 +191,40 @@ contains
     implicit none
 
      ! vitesse au temps n
-    real(kind=8), dimension(:,:,:), intent(inout)           :: u
-    real(kind=8), dimension(:,:), intent(inout)             :: p
-    real(kind=8), dimension(:,:), intent(in)                :: level
+    real(kind=8), dimension(:,:,:), intent(inout)                                 :: u
+    real(kind=8), dimension(:,:), intent(inout)                                   :: p
+    real(kind=8), dimension(:,:), intent(in)                                      :: level
 
     !vitesse au temps n+1
-    real(kind=8), dimension(size(u,1),size(u,2),size(u,3))  :: u_next
-    real(kind=8), dimension(size(p,1),size(p,2))            :: p_next
-    real(kind=8), dimension(size(p,1)*size(p,2))            :: p_next_vect
+    real(kind=8), dimension(size(u,1),size(u,2),size(u,3))                        :: u_next
+    real(kind=8), dimension(size(p,1),size(p,2))                                  :: p_next
+    real(kind=8), dimension(size(p,1)*size(p,2))                                  :: p_next_vect
 
     !vitesse intermédiaire
-    real(kind=8), dimension(:,:,:), allocatable             :: u_star
+    real(kind=8), dimension(:,:,:), allocatable                                   :: u_star
 
     !paramètres physiques
-    real(kind=8), dimension(2), intent(in)                  :: g
-    real(kind=8), dimension(:,:), intent(in)                :: rho, rho_centre, mu
+    real(kind=8), dimension(2), intent(in)                                        :: g
+    real(kind=8), dimension(:,:), intent(in)                                      :: rho, rho_centre, mu
+    real(kind=8), dimension(size(rho_centre,1)*size(rho_centre,2))                :: rho_centre_vect
 
     !paramètres numériques
-    real(kind=8), intent(in)                                :: dt, dx 
+    real(kind=8), intent(in)                                                      :: dt, dx 
     integer :: N, i, j
 
     !matrice de Poisson et second membre
-    real(kind=8), dimension(:,:), intent(in)                :: A
-    integer, dimension(:), intent(in)                       :: ipvt
-    real(kind=8), dimension(:), allocatable                 :: B
+    real(kind=8), dimension(:,:), intent(in)                                      :: A
+    integer, dimension(:), intent(in)                                             :: ipvt
+    real(kind=8), dimension(:), allocatable                                       :: B
 
-    real(kind=8), dimension(:,:,:), allocatable             :: laplace_u , u_grad_u , grad_p
+    real(kind=8), dimension(:,:,:), allocatable                                   :: laplace_u , u_grad_u , grad_p
 
-    integer                                                 :: info, im, jm, km, k
+    integer                                                                       :: info, im, jm, km, k
 
-    character(len=3)                                        :: nom
+    character(len=3)                                                              :: nom
 
-    real(8)                                                 :: data, temp, temp2
+    real(8)                                                                       :: data, temp, temp2
+
 
     N = size(u,1)-1
 
@@ -311,6 +313,21 @@ contains
     !gradient conjugué
 
     B = B*dx*dx
+
+    !modification tableau rho_centre en vecteur rho_centre_vect 
+
+    do i = 1 , size(rho_centre,1)
+       
+       do j = 1 , size(rho_centre,2)
+
+          rho_centre_vect(i+(j-1)*N) = rho_centre(i,j)
+
+       end do
+       
+    end do
+
+
+    !APPEL MÉTHODE DE RÉSOLUTION ADAPTÉ PB DE POISSON
 
 !!$    call grad_conj_opt(P_next_vect,B,dx)
 
