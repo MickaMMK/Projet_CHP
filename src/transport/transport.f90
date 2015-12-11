@@ -4,12 +4,6 @@ module transportmod
   use locatemod
   use interpmod
 
-!!$%%%%%%% COMMENTAIRES %%%%%%%!!
-!!$Résolution de l'équation de transport d(f)/dt + v.grad(f)=0
-!!$
-!!$ ATTENTION, CA DEVRAIT PAS COMPILER: VERIFIER SYNTAXE ET TYPES
-!!$
-!!$%%%%%%% FIN COMMENTAIRES %%%%%%%!!
   implicit none
 
 contains
@@ -33,7 +27,7 @@ contains
           !position au temps précedent
           coord = noeuds(i,j,:)
           call euler(-1.*vitesses(i,j,:), coord, dt) !Modifie coord
-          if(coord(1) < 1e-6 .OR. coord(2) < 1e-6 .OR. coord(1) > 1-1e-6 .OR. coord(2) > 1-1e-6) then
+          if(coord(1) < 0 .OR. coord(2) < 0 .OR. coord(1) > 1 .OR. coord(2) > 1) then
           else
              call noyau_interp(vect2(noeuds),vect1(level),coord,dx,val)
              level(i,j) = val

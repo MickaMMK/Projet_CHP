@@ -155,7 +155,7 @@ contains
           end do                   ! DU COUP LEVEL A ETE AJOUTE POUR L'INSTANT
        enddo
     end do
-    if(level(im,jm) > 0.5) then
+    if(level(im,jm) > 0) then
        nom = "air"
     else
        nom = "eau"
