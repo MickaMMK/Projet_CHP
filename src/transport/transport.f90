@@ -3,6 +3,7 @@ module transportmod
   use eulermod
   use locatemod
   use interpmod
+  use vectmod
 
   implicit none
 
@@ -14,11 +15,15 @@ contains
     real(8), dimension(:,:,:), intent(in) :: noeuds, vitesses
     real(8), dimension(:,:), intent(inout) :: level
     real(8), intent(in) :: dt, dx
+    real(8), dimension(size(noeuds,1)*size(noeuds,2),size(noeuds,3)) :: vect_noeuds
+    real(8), dimension(size(level,1)*size(level,2)) :: old_level
     real(8), dimension(2) :: coord
     integer :: i,j,k,N
     real(8) :: val
 
     N = size(level,1)-1
+    old_level = vect1(level)
+    vect_noeuds = vect2(noeuds)
 
     !boucle sur les noeuds
     do i = 1, N+1
@@ -29,7 +34,7 @@ contains
           call euler(-1.*vitesses(i,j,:), coord, dt) !Modifie coord
           if(coord(1) < 0 .OR. coord(2) < 0 .OR. coord(1) > 1 .OR. coord(2) > 1) then
           else
-             call noyau_interp(vect2(noeuds),vect1(level),coord,dx,val)
+             call noyau_interp(vect_noeuds,old_level,coord,dx,val)
              level(i,j) = val
           end if
 

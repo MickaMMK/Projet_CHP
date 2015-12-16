@@ -8,7 +8,7 @@ program main
   implicit none
 
   !--------------------------------
-  integer, parameter :: N = 50    !
+  integer, parameter :: N = 100    !
   integer, parameter :: tmax = 5  !
   real(8), parameter :: cfl = 0.9 !
   !--------------------------------
@@ -28,13 +28,9 @@ program main
   real(8) :: dx, dt, rho_air, rho_eau, nu_air, nu_eau, raff_size
   integer :: i, j, Niter, ci, di, ui, k, meth, nbp, npart, npart_uni, raff_num, raff
   character(len=1) :: c, d, u
-
-  npart_uni = 100
-  raff_num = 2
-  raff_size = 0.01
   
   dx = 1./N
-  npart = npart_uni*(raff_num*2+1)
+  npart = 0
 
   rho_air = 1000. !1.
   rho_eau = 1000. !1000.
@@ -58,7 +54,7 @@ program main
   print*, "1 - Oui"
   print*, "2 - Non"
   read*, raff
-  if(meth < 1 .OR. meth > 2) then
+  if(raff < 1 .OR. raff > 2) then
      print*, "Erreur dans le choix de l'ajout de points à l'interface"
      print*, "==========="
      print*, "== ABORT =="
@@ -71,6 +67,13 @@ program main
   end if
 
   if(raff == 1) then
+     print*, "Choisissez le nombre d'anneaux de chaque côté de l'interface :"
+     read*, raff_num
+     print*, "Choisissez le nombre de points lagrangiens par anneau :"
+     read*, npart_uni
+     print*, "Choisissez la distance entre chaque anneau :"
+     read*, raff_size
+     npart = npart_uni*(raff_num*2+1)
      nbp = nbp + npart
   end if
 
@@ -79,15 +82,15 @@ program main
   call initcoord(noeuds, centres)
 
   vitesses = 0.
-!!$  vitesses(2:N,2:N,:) = 0.3
+!!$  !vitesses(2:N,2:N,:) = 0.3
 
-!!$  do i = 2, N
-!!$     do j = 2, N
-!!$        vitesses(i,j,:) = (/-(noeuds(i,j,1)-0.5)**2+0.25,-(noeuds(i,j,2)-0.5)**2+0.25/)
-!!$        print*, vitesses(i,j,:)
-!!$     end do
-!!$  end do
-  pressions = 1.013D5
+!!$  !do i = 2, N
+!!$  !   do j = 2, N
+!!$  !      vitesses(i,j,:) = (/-(noeuds(i,j,1)-0.5)**2+0.25,-(noeuds(i,j,2)-0.5)**2+0.25/)
+!!$  !      print*, vitesses(i,j,:)
+!!$  !   end do
+!!$  !end do
+  pressions = Patm
   
   do i = 1, N+1
      do j = 1, N+1
@@ -128,8 +131,8 @@ program main
   call write("vitesses_y", 0, vect2(noeuds), vect1(vitesses(:,:,2)))
   call write("pressions", 0, vect2(centres), vect1(pressions))
 
-  call remplissage_poisson(A,dx,N)
-  call DGETRF(N*N, N*N, A, N*N, ipvt, info)
+!!$  !call remplissage_poisson(A,dx,N)
+!!$  !call DGETRF(N*N, N*N, A, N*N, ipvt, info)
 
   do k = 1, Niter
 
@@ -147,12 +150,11 @@ program main
         print*, 'Projection'
         call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
 
-        if(raff == 1) then
-           do i = 1, nbp
-              call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
-              call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,2)), particules(i,:), dx, vitesses_particules(i,2))
-           end do
-        end if
+        print*, 'Interpolation de la vitesse sur les particules'
+        do i = 1, nbp
+           call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
+           call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,2)), particules(i,:), dx, vitesses_particules(i,2))
+        end do
 
         print*, 'Transport'
         if(raff == 1) then
@@ -161,9 +163,6 @@ program main
         else
            call transport_level(noeuds, vitesses, level, dt, dx)
         end if
-        
-        !print*, "somme des lvl = ",sum(1-level)
-        !print*, "somme des lvl après valeur fixée à 0 ou 1 = ",sum(int(1-level+0.5))
 
         print*, 'Ecriture'
         call write("level", k, vect2(noeuds), vect1(level))
@@ -186,16 +185,19 @@ program main
         !==============================================================================================
         !========================================= LAGRANGIEN =========================================
         
-        print*, 'Projection'
+        print*, 'Méthode de projection'
         call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
 
+        print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp
            call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
            call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,2)), particules(i,:), dx, vitesses_particules(i,2))
         end do
 
+        print*, 'Transport des particules'
         call transport_particules(particules, vitesses_particules, dt, dx)
 
+        print*, 'Interpolation du level sur les noeuds eulerien'
         do i = 2, N
            do j = 2, N
               call noyau_interp(particules, level_particules, noeuds(i,j,:), dx, level(i,j))
@@ -203,12 +205,13 @@ program main
         end do
 
         if(mod(k,50) == 0) then
+           print*, 'Retour des points lagrangiens sur la grille eulerienne'
            particules(1:(N-1)*(N-1),:) = vect2(noeuds(2:N,2:N,:))
            vitesses_particules(1:(N-1)*(N-1),:) = vect2(vitesses(2:N,2:N,:))
            level_particules(1:(N-1)*(N-1)) = vect1(level(2:N,2:N))
-           !level_particules = int(level(2:N,2:N)+0.5)
         end if
         
+        print*, 'Ecriture'
         call write("level_particules", k, particules, level_particules)
         call write("vitesses_x_particules", k, particules, vitesses_particules(:,1))
         call write("vitesses_y_particules", k, particules, vitesses_particules(:,2))

@@ -18,51 +18,41 @@ contains
     N = int(sqrt(float(size(X))))
 
     Y(1) = -2*X(1) + X(2) + X(N+1)
-    Y(1) = -Y(1)/2
 
     do j = 2 , N-1
 
        Y(j) = -3*X(j) + X(j-1) + X(j+1) + X(j+N)
-       Y(j) =-Y(j)/3
 
     end do
 
     Y(N) = -2*X(N) + X(N-1) + X(2*N)
-    Y(N) = -Y(N)/2
 
     do i = 2 , N-1
 
        Y((i-1)*N+1) = -3*X((i-1)*N+1) + X((i-1)*N+2) + X((i-1)*N+N+1) + X((i-1)*N-N+1) 
-       Y((i-1)*N+1) =-Y((i-1)*N+1)/3
 
        do j = 2 , N-1
 
           Y((i-1)*N+j) = -4*X((i-1)*N+j) + X((i-1)*N+j+1) + X((i-1)*N+j-1) &
                &+ X((i-1)*N+j-N) + X((i-1)*N+j+N)
-          Y((i-1)*N+j) =-Y((i-1)*N+j)/4
 
        end do
 
        Y(i*N) = -3*X(i*N) + X(i*N-1) + X((i-1)*N) + X((i+1)*N) 
-       Y(i*N) =-Y(i*N)/3
 
     end do
 
     Y(N*(N-1)+1) = -2*X(N*(N-1)+1) + X(N*(N-1) + 2) + X(N*(N-1)-N+1)
-    Y(N*(N-1)+1)= -Y(N*(N-1)+1)/2
 
     do j = 2 , N-1
 
        Y(N*(N-1)+j) = -3*X(N*(N-1)+j) + X(N*(N-1)+j+1) + X(N*(N-1)+j-1)+ X(N*(N-1)+j-N)
-       Y(N*(N-1)+j) =-Y(N*(N-1)+j)/3
 
     end do
 
     ! on remplace la dernière ligne de la matrice par (0--------01) pour fixer la valeur de la pression au centre (N,N)
-    !Y(N*N) = -2*X(N*N) + X(N*N-1) + X(N*N-N)              
-    Y(N*N) = X(N*N)*dx
-
-    !  deallocate(Y)
+    Y(N*N) = -2*X(N*N) + X(N*N-1) + X(N*N-N)              
+    !Y(N*N) = X(N*N)*dx*dx
 
   end function mat_vect
 
@@ -160,9 +150,55 @@ contains
     !Y(N*N) = -2*X(N*N) + X(N*N-1) + X(N*N-N)              
     !  Y(N*N) = X(N*N)*dx
 
-    Y = 2 * Y / (dx*dx)    
-    Y(N*N) = X(N*N)*dx
+    Y = 2 * Y    
+    Y(N*N) = X(N*N)*dx*dx
 
   end function mat_vect_diphasique
+
+  function condi(X) result(CX)
+    
+    implicit none
+    
+    real(8), dimension(:), intent(in) :: X
+    real(8), dimension(size(X)) :: CX
+    integer :: i,j,N
+
+    N = int(sqrt(float(size(X))))
+
+    CX(1) = -X(1)/2
+
+    do j = 2 , N-1
+
+       CX(j) =-X(j)/3
+
+    end do
+
+    CX(N) = -X(N)/2
+
+    do i = 2 , N-1
+
+       CX((i-1)*N+1) =-X((i-1)*N+1)/3
+
+       do j = 2 , N-1
+
+          CX((i-1)*N+j) =-X((i-1)*N+j)/4
+
+       end do
+
+       CX(i*N) =-X(i*N)/3
+
+    end do
+
+    CX(N*(N-1)+1)= -X(N*(N-1)+1)/2
+
+    do j = 2 , N-1
+
+       CX(N*(N-1)+j) =-X(N*(N-1)+j)/3
+
+    end do
+
+    CX(N*N) = -X(N*N)/2
+
+  end function condi
 
 end module matvectmod
