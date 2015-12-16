@@ -4,7 +4,7 @@ program main
   use modmainmod
   use projection_methodmod
   use remplissage_poissonmod
-  
+
   implicit none
 
   !--------------------------------
@@ -32,7 +32,7 @@ program main
   npart_uni = 100
   raff_num = 2
   raff_size = 0.01
-  
+
   dx = 1./N
   npart = npart_uni*(raff_num*2+1)
 
@@ -131,7 +131,7 @@ program main
   call remplissage_poisson(A,dx,N)
   call DGETRF(N*N, N*N, A, N*N, ipvt, info)
 
-  do k = 1, Niter
+  do k = 1, 1!Niter
 
      print*, "Itération ",k," sur ",Niter
   
