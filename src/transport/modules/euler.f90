@@ -2,9 +2,6 @@ module eulermod
 !!$%%%%%%% COMMENTAIRES %%%%%%%!!
 !!$ Méthode d'Euler pour situer au temps n-1 la valeur sur un noeud au temps n
 !!$ de la fonction cherchée 
-!!$
-!!$ ATTENTION, CA DEVRAIT PAS COMPILER: VERIFIER SYNTAXE ET TYPES
-!!$
 !!$%%%%%%% FIN COMMENTAIRES %%%%%%%!!
   implicit none
 
