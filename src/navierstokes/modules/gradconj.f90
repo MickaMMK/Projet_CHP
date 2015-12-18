@@ -37,27 +37,24 @@ contains
     err = 1._wp
 
     X = 1._wp
-    r = B - mat_vect(X,dx)
+    r = B - condi(mat_vect(X,dx))
     err = sqrt(dot_product(r,r))
     w = r
-    alpha = dot_product(w,r) / dot_product(mat_vect(w,dx),r)
+    alpha = dot_product(w,r) / dot_product(condi(mat_vect(w,dx)),r)
     i = 0
 
     do while((eps<err).and.(i<10000))
 
        i = i + 1
        X = X + alpha*w
-       r = B - mat_vect(X,dx)
-       Aw = mat_vect(w,dx)
+       r = B - condi(mat_vect(X,dx))
+       Aw = condi(mat_vect(w,dx))
        err = sqrt(dot_product(r,r))
        beta = dot_product(Aw-w,r) / dot_product(Aw,w)
        w = r - beta*w
-       alpha = dot_product(w,r) / dot_product(mat_vect(w,dx),w)
-       print*, err,' - err'
+       alpha = dot_product(w,r) / dot_product(condi(mat_vect(w,dx)),w)
 
     enddo
-
-    ! X = X * dx * dx
 
     print*,i
 

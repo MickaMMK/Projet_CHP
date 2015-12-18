@@ -4,7 +4,10 @@
 
 module projection_methodmod
   use grad_conj
+  use vectmod
   implicit none
+
+  real(8), parameter :: Patm = 1.013d5
 
 contains
 
@@ -97,30 +100,22 @@ contains
        end do
     end do
 
-    B(N*N) = 1.013D5
-
-    do i = 1, N
-       do j = 1, N
-          p_next_vect(i+(j-1)*N) = p_next(i,j)
-       end do
-    end do
-
 
     !gradient conjugué
 
-    B = B*dx*dx
+    B = condi(B*dx*dx)
 
-!!$    call grad_conj_opt(P_next_vect,B,dx)
+    !!!!!!!!!!!!!!!!!!!!!!! CHOIX SOLVEUR !!!!!!!!!!!!!!!!!!!!!!!
 
-!!$    call DGETRF(N*N, N*N, A, N*N, ipvt, info)
-    call DGETRS('N', N*N, 1, A, N*N, ipvt, B, N*N, info)
-    P_next_vect = B    !calcul vitesse au temps n+1
+    P_next_vect = vect1(P_next)
+    call grad_conj_opt(P_next_vect,B,dx)
+    P_next = unvect1(remoy(P_next_vect,Patm))
+!!$
+!!$    !!!call DGETRF(N*N, N*N, A, N*N, ipvt, info)      ! On n'utilise plus DGETRF (fait dans le main)
+!!$    call DGETRS('N', N*N, 1, A, N*N, ipvt, B, N*N, info)
+!!$    P_next = unvect1(remoy(B,Patm))
 
-    do i = 1, N
-       do j = 1, N
-          p_next(i,j) = p_next_vect(i+(j-1)*N)
-       end do
-    end do
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     do i = 2 , N
 
@@ -390,5 +385,17 @@ contains
 
 
   end subroutine projection_method_diphasique
+
+  function remoy(X, moy) result(Y)
+    
+    implicit none
+
+    real(8), dimension(:), intent(in) :: X
+    real(8), dimension(size(X)) :: Y
+    real(8), intent(in) :: moy
+
+    Y = X - sum(X)/size(X) + moy
+
+  end function remoy
 
 end module projection_methodmod

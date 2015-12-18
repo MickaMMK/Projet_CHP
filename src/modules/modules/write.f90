@@ -28,7 +28,7 @@ contains
     write(22,*) '"x", "y", "level"'
 
     do i = 1, size(coord,1)
-       write(22,*) coord(i,1)+0.1,", ", coord(i,2)+0.1,", ", valeur(i)
+       write(22,*) coord(i,1),", ", coord(i,2),", ", valeur(i)
     end do
 
     close(22)
