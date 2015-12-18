@@ -4,11 +4,12 @@ program main
   use modmainmod
   use projection_methodmod
   use remplissage_poissonmod
+  use raffinage
 
   implicit none
 
   !--------------------------------
-  integer, parameter :: N = 100    !
+  integer, parameter :: N = 50    !
   integer, parameter :: tmax = 5  !
   real(8), parameter :: cfl = 0.9 !
   !--------------------------------
@@ -16,17 +17,18 @@ program main
   real(8), parameter :: pi = 3.1415926535897932384626433842795028841971693993
 
   real(8), dimension(N+1,N+1,2) :: noeuds, vitesses
-  real(8), dimension(:,:), allocatable :: particules, vitesses_particules
+  real(8), dimension(:,:), allocatable :: particules, vitesses_particules, new_part, partitemp
   real(8), dimension(N,N,2) :: centres
   real(8), dimension(N+1,N+1) :: level, rho, nu
-  real(8), dimension(:), allocatable :: level_particules
+  real(8), dimension(:), allocatable :: level_particules, lvlpartitemp
   real(8), dimension(N,N) :: pressions, rho_centre
   real(8), dimension(N*N,N*N) :: A
   integer, dimension(N*N) :: ipvt
+  integer, dimension(:), allocatable :: npart_uni
   integer :: info
   real(8), dimension(2) :: g
   real(8) :: dx, dt, rho_air, rho_eau, nu_air, nu_eau, raff_size
-  integer :: i, j, Niter, ci, di, ui, k, meth, nbp, npart, npart_uni, raff_num, raff
+  integer :: i, j, Niter, ci, di, ui, k, meth, nbp, npart, raff_num, raff, temp, nbp_new
   character(len=1) :: c, d, u
 
   dx = 1./N
@@ -69,11 +71,13 @@ program main
   if(raff == 1) then
      print*, "Choisissez le nombre d'anneaux de chaque côté de l'interface :"
      read*, raff_num
+     allocate(npart_uni(raff_num*2+1))
      print*, "Choisissez le nombre de points lagrangiens par anneau :"
-     read*, npart_uni
+     read*, npart_uni(1)
+     npart_uni = npart_uni(1)
      print*, "Choisissez la distance entre chaque anneau :"
      read*, raff_size
-     npart = npart_uni*(raff_num*2+1)
+     npart = npart_uni(1)*(raff_num*2+1)
      nbp = nbp + npart
   end if
 
@@ -106,16 +110,16 @@ program main
      level_particules(1:(N-1)*(N-1)) = vect1(level(2:N,2:N))
   end if
   if(raff == 1) then
-     do i = nbp-npart+1, nbp-npart+npart_uni
-        particules(i,:) = (/0.5+0.2*cos(2*pi*i/npart_uni), 0.5+0.2*sin(2*pi*i/npart_uni)/)
+     do i = nbp-npart+1, nbp-npart+npart_uni(1)
+        particules(i,:) = (/0.5+0.2*cos(2*pi*i/npart_uni(1)), 0.5+0.2*sin(2*pi*i/npart_uni(1))/)
         level_particules(i) = 0.
         do j = 1, raff_num
-           particules(2*j*npart_uni+i,:) = (/0.5+(0.2-j*raff_size)*cos(2*pi*i/npart_uni), &
-                & 0.5+(0.2-j*raff_size)*sin(2*pi*i/npart_uni)/)
-           level_particules(2*j*npart_uni+i) = -raff_size*j
-           particules((2*j-1)*npart_uni+i,:) = (/0.5+(0.2+j*raff_size)*cos(2*pi*i/npart_uni), &
-                & 0.5+(0.2+j*raff_size)*sin(2*pi*i/npart_uni)/)
-           level_particules((2*j-1)*npart_uni+i) = raff_size*j
+           particules(2*j*npart_uni(1)+i,:) = (/0.5+(0.2-j*raff_size)*cos(2*pi*i/npart_uni(1)), &
+                & 0.5+(0.2-j*raff_size)*sin(2*pi*i/npart_uni(1))/)
+           level_particules(2*j*npart_uni(1)+i) = -raff_size*j
+           particules((2*j-1)*npart_uni(1)+i,:) = (/0.5+(0.2+j*raff_size)*cos(2*pi*i/npart_uni(1)), &
+                & 0.5+(0.2+j*raff_size)*sin(2*pi*i/npart_uni(1))/)
+           level_particules((2*j-1)*npart_uni(1)+i) = raff_size*j
         end do
      end do
   end if
@@ -134,7 +138,7 @@ program main
 !!$  !call remplissage_poisson(A,dx,N)
 !!$  !call DGETRF(N*N, N*N, A, N*N, ipvt, info)
 
-  do k = 1, 1!Niter
+  do k = 1, Niter
 
      print*, "Itération ",k," sur ",Niter
   
@@ -160,6 +164,8 @@ program main
         if(raff == 1) then
            call transport_level_EL(noeuds, vitesses, level, dt, dx, particules, level_particules)
            call transport_particules(particules, vitesses_particules, dt, dx)
+           print*, 'Remaillage'
+           call remaillage_particules(particules,vitesses_particules,level_particules,raff_num,nbp,npart,npart_uni,0.01d0,0.0001d0)
         else
            call transport_level(noeuds, vitesses, level, dt, dx)
         end if
@@ -196,6 +202,10 @@ program main
 
         print*, 'Transport des particules'
         call transport_particules(particules, vitesses_particules, dt, dx)
+        if(raff == 1) then
+           print*, 'Remaillage'
+           call remaillage_particules(particules,vitesses_particules,level_particules,raff_num,nbp,npart,npart_uni,0.01d0,0.0001d0)
+        end if
 
         print*, 'Interpolation du level sur les noeuds eulerien'
         do i = 2, N

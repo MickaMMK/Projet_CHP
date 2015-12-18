@@ -1,37 +1,5 @@
-program raffinage
+module raffinage
   implicit none
-
-
-  integer, parameter :: Npart_uni = 100 !, Nmaill = 49*49
-  real(8), dimension(Npart_uni,2) :: particules
-  real(8), dimension(:,:), allocatable :: new_particules
-!!$  real(8), dimension(Npart_uni) :: distances
-  real(8) :: seuil_min, seuil_max
-!!$  integer, dimension(Npart_uni) :: rajout
-  integer :: i !, j, N_stock
-
-  seuil_min = 0.02
-  seuil_max = 0.0001
-
-  open(unit=41,file='cercle')
-
-  do i = 1, Npart_uni
-     read(41,*) particules(i,1), particules(i,2)
-  enddo
-
-  call remaillage(particules,new_particules,seuil_min,seuil_max)
-
-  open(unit=50,file='new_part')
-  do i = 1, size(new_particules,1)
-     write(50,*) new_particules(i,1), new_particules(i,2)
-  enddo
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 
 contains
   subroutine remaillage(part,new_part,seuil_min,seuil_max)
@@ -133,7 +101,6 @@ contains
        Npart_uni = Npart_uni+ceiling(sum(rajout))
 
        k = ceiling(sum(rajout))
-       print*,k
 
        deallocate(particules,rajout,distances)
        allocate(particules(Npart_uni,2),rajout(Npart_uni))
@@ -153,4 +120,42 @@ contains
 
   end subroutine remaillage
 
-end program raffinage
+  subroutine remaillage_particules(particules,vitesses_particules,level_particules,raff_num,nbp,npart,npart_uni,seuil1,seuil2)
+
+    implicit none
+    
+    real(8), dimension(:,:), allocatable, intent(inout) :: particules, vitesses_particules
+    real(8), dimension(:), allocatable, intent(inout) :: level_particules
+    integer, dimension(:), intent(inout) :: npart_uni
+    integer, intent(inout) :: raff_num, nbp, npart
+    real(8), intent(in) :: seuil1, seuil2
+    integer :: temp, nbp_new, i
+    real(8), dimension(:,:), allocatable :: partitemp, new_part
+    real(8), dimension(:), allocatable :: lvlpartitemp
+
+    temp = 0
+    do i = 1, raff_num*2+1
+       call remaillage(particules(nbp-npart+temp+1:nbp-npart+temp+npart_uni(i),:), new_part, seuil1, seuil2)
+       allocate(partitemp(nbp,2), lvlpartitemp(nbp))
+       partitemp = particules
+       lvlpartitemp = level_particules
+       deallocate(particules, vitesses_particules, level_particules)
+       allocate(particules(nbp-npart_uni(i)+size(new_part,1),2), vitesses_particules(nbp-npart_uni(i)+size(new_part,1),2))
+       allocate(level_particules(nbp-npart_uni(i)+size(new_part,1)))
+       nbp_new = nbp - npart_uni(i) + size(new_part,1)
+       particules(1:nbp-npart+temp,:) = partitemp(1:nbp-npart+temp,:)
+       level_particules(1:nbp-npart+temp) = lvlpartitemp(1:nbp-npart+temp)
+       particules(nbp-npart+temp+1:nbp-npart+temp+size(new_part,1),:) = new_part
+       level_particules(nbp-npart+temp+1:nbp-npart+temp+size(new_part,1)) = lvlpartitemp(nbp-npart+temp+1)
+       particules(nbp-npart+temp+size(new_part,1)+1:nbp_new,:) = partitemp(nbp-npart+temp+npart_uni(i)+1:nbp,:)
+       level_particules(nbp-npart+temp+size(new_part,1)+1:nbp_new) = lvlpartitemp(nbp-npart+temp+npart_uni(i)+1:nbp)
+       nbp = nbp_new
+       npart = npart - npart_uni(i) + size(new_part,1)
+       npart_uni(i) = size(new_part,1)
+       temp = temp + npart_uni(i)
+       deallocate(new_part, partitemp, lvlpartitemp)
+    end do
+
+  end subroutine remaillage_particules
+
+end module raffinage
