@@ -294,13 +294,6 @@ contains
        end do
     end do
 
-    do i = 1, N
-       do j = 1, N
-          p_next_vect(i+(j-1)*N) = p_next(i,j)
-       end do
-    end do
-
-
     !gradient conjugué
     rho_centre_vect = vect1(rho_centre)
     B = condi_diphasique(B*dx*dx*0.5d0, rho_centre_vect)
@@ -308,13 +301,6 @@ contains
     P_next_vect = vect1(P_next)
     call grad_conj_diphasique(P_next_vect,B,dx,rho_centre_vect)
     P_next = unvect1(remoy(P_next_vect,Patm))
-    
-
-    do i = 1, N
-       do j = 1, N
-          p_next(i,j) = p_next_vect(i+(j-1)*N)
-       end do
-    end do
 
     do i = 2 , N
 
@@ -327,7 +313,7 @@ contains
 
     end do
 
-    u_next = 0
+    u_next = 0.
     u_next(:,N+1,1) = 0.
 
     do i = 1, size(u_next,3)

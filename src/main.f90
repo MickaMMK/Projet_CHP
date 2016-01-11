@@ -197,7 +197,8 @@ program main
         !========================================= LAGRANGIEN =========================================
         
         print*, 'Méthode de projection'
-        call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
+!!$        call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
+        call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
 
         print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp
