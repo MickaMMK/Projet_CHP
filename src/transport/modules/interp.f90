@@ -166,7 +166,7 @@ contains
              ponderation = ponderation + ((2-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
 
           !Carré droit            
-          else ( ( u >= 1.0) .and. ( u <= 2.0) ) then
+          elseif ( ( u >= 1.0) .and. ( u <= 2.0) ) then
 
              valeur = valeur + level(i)*((2-v)**3/6)*((2-u)**3/6)
 
@@ -191,7 +191,7 @@ contains
 
              ponderation = ponderation + ((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
           !Carré droit
-          else ( ( u >= 1.0) .and. ( u <= 2.0) ) then
+          elseif ( ( u >= 1.0) .and. ( u <= 2.0) ) then
 
              valeur = valeur + level(i)*((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6)
 
@@ -218,7 +218,7 @@ contains
              ponderation = ponderation + ((2-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
 
           !Carré droit
-          else ( ( u >= 1.0) .and. ( u <= 2.0) ) then
+          elseif ( ( u >= 1.0) .and. ( u <= 2.0) ) then
 
              valeur = valeur + level(i)*((2-v)**3/6)*((2-u)**3/6)
 
