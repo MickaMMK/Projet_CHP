@@ -135,13 +135,8 @@ contains
     integer                           :: i, j
     real(8)                           :: ponderation
     real(8)                           :: dist
-<<<<<<< HEAD
-    
     real(8)                           :: u, v      ! u=x/dx; v=y/dy
 
-=======
-    real(8)                           :: u, v
->>>>>>> 6c28bde6f3f742689f52a593f7338526b7ab6d8f
 
     ponderation = 0.
     valeur = 0.
@@ -156,28 +151,12 @@ contains
 !!$          if ( dist <= 1.0 ) then
 !!$
 !!$             valeur = valeur + level(i)*((2-dist)**3- (4*(1-dist)**3))/6
-<<<<<<< HEAD
-!!$
 !!$             ponderation = ponderation +((2-dist)**3- (4*(1-dist)**3))/6
-=======
-!!$             !valeur = valeur + level(i,j)*(1.0 - (5.0*dist**2)/2.0 + (3.0*dist**3)/2.0)
-!!$
-!!$             ponderation = ponderation +((2-dist)**3- (4*(1-dist)**3))/6
-!!$             !ponderation = ponderation +(1.0 - (5.0*dist**2)/2.0 + (3.0*dist**3)/2.0)
->>>>>>> 6c28bde6f3f742689f52a593f7338526b7ab6d8f
-!!$
+
 !!$          else
 !!$
 !!$             valeur = valeur + level(i)*((2-dist)**3/6)
-<<<<<<< HEAD
-!!$
 !!$             ponderation = ponderation + ((2-dist)**3/6)
-=======
-!!$             !valeur = valeur + level(i,j)*0.5*(1.0-dist)*(2.0-dist)**2
-!!$
-!!$             ponderation = ponderation + ((2-dist)**3/6)
-!!$             !ponderation = ponderation + 0.5*(1.0-dist)*(2.0-dist)**2
->>>>>>> 6c28bde6f3f742689f52a593f7338526b7ab6d8f
 !!$
 !!$          end if
 !!$
@@ -188,7 +167,6 @@ contains
 !!$    if (ponderation > 1d-8) then  
 !!$       valeur = valeur/ponderation
 !!$    end if
-<<<<<<< HEAD
     
     ! Kernels multipliés
     do i = 1, size(noeuds,1)
@@ -368,7 +346,6 @@ contains
        end if
 
  end do
->>>>>>> 6c28bde6f3f742689f52a593f7338526b7ab6d8f
 
     if (ponderation > 1d-8) then  
        valeur = valeur/ponderation
