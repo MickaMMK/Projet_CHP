@@ -76,10 +76,10 @@ contains
     real(8) :: val
 
     coordtot(1:size(noeuds,1)*size(noeuds,2),:) = vect2(noeuds)
-    coordtot(size(noeuds,1)*size(noeuds,2)+1:size(coordtot),:) = coordlagr
+    coordtot(size(noeuds,1)*size(noeuds,2)+1:size(coordtot,1),:) = coordlagr
 
     leveltot(1:size(noeuds,1)*size(noeuds,2)) = vect1(level)
-    leveltot(size(noeuds,1)*size(noeuds,2)+1:size(coordtot)) = levellagr
+    leveltot(size(noeuds,1)*size(noeuds,2)+1:size(coordtot,1)) = levellagr
 
     !boucle sur les noeuds
     do i = 1, size(noeuds,1)
