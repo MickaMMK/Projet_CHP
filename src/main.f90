@@ -148,16 +148,16 @@ program main
 
      if(meth == 1) then
 
-        !==============================================================================================
-        !========================================== Pour changer les vitesses dans les deux méthodes (spirale, commenter projetction) ==========================================
+        !==============================================================================================!
+        !== Pour changer les vitesses dans les deux méthodes (spirale, commenter projetction) =========!
 
 
-        !==============================================================================================
-        !========================================== EULERIEN ==========================================
+        !==============================================================================================!
+        !========================================== EULERIEN ==========================================!
         
         print*, 'Projection'
-        call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
-
+        !call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
+        
         print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp
            call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
@@ -196,7 +196,7 @@ program main
         !========================================= LAGRANGIEN =========================================
         
         print*, 'Méthode de projection'
-        call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
+        !call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
 
         print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp

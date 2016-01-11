@@ -99,4 +99,21 @@ contains
 
   end subroutine transport_level_EL
 
+  subroutine spirale(dt,tmax,points,vitesses)
+    implicit none
+    real*8,dimension(:,:,:),intent(in)::points
+    real*8,dimension(:,:,:),intent(out)::vitesses
+    real*8,intent(inout)::t,tmax
+    integer::i,j,k
+
+    do i=1,size(points(:,1))
+       do j=1,size(points(1,:))
+          vitesses(i,j,1)=cos(pi*dt*k/tmax)*&
+               (-sin(pi*(points(i,j,1)-.5d0))**2*sin(2d0*pi*(points(i,j,2)-.5d0)))
+          vitesses(i,j,2)=cos(pi*dt*k/tmax)*&
+               (sin(2d0*pi*(points(i,j,1)-.5d0))*sin(pi*(points(i,j,2)-.5d0))**2)
+       end do
+    end do
+
+  end subroutine spirale
 end module transportmod
