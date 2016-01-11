@@ -141,128 +141,11 @@ contains
     ponderation = 0.
     valeur = 0.
 
-    
-!!$    do i = 1, size(noeuds,1)
-!!$       
-!!$       dist = sqrt( (noeuds(i,1)-coord(1))**2 + (noeuds(i,2)-coord(2))**2 )/dx
-!!$
-!!$       if ( dist <= 2.0 ) then
-!!$
-!!$          if ( dist <= 1.0 ) then
-!!$
-!!$             valeur = valeur + level(i)*((2-dist)**3- (4*(1-dist)**3))/6
-!!$             ponderation = ponderation +((2-dist)**3- (4*(1-dist)**3))/6
-
-!!$          else
-!!$
-!!$             valeur = valeur + level(i)*((2-dist)**3/6)
-!!$             ponderation = ponderation + ((2-dist)**3/6)
-!!$
-!!$          end if
-!!$
-!!$       end if
-!!$
-!!$    end do
-!!$
-!!$    if (ponderation > 1d-8) then  
-!!$       valeur = valeur/ponderation
-!!$    end if
-    
     ! Kernels multipliés
     do i = 1, size(noeuds,1)
-       
-       
-       u = (noeuds(i,1) - coord(1))/dx
-       v = (noeuds(i,2) - coord(2))/dy
 
-
-       if( ( v => -2.0 ) .and. ( v <= -1.0 ) ) then! Ligne du haut
-
-          if ( ( u => -2.0) .and. ( u <= -1.0 ) ) then ! Gauche
-
-             valeur = valeur + level(i)*((2-v)**3/6)*((2-u)**3/6)
-
-             ponderation = ponderation + ((2-v)**3/6)*((2-u)**3/6)
-
-          elseif ( ( u => -1.0) .and. ( u <= 1.0 ) ) then ! Milieu
-             
-             valeur = valeur + level(i)*((2-v)**3/6)*((2-u)**3 - 4*(1-u)**3)/6
-
-             ponderation = ponderation + ((2-v)**3/6)*((2-u)**3 - 4*(1-u)**3)/6
-
-          elseif ( ( u => 1.0) .and. ( u <= 2.0 ) ) then ! Droite
-
-             valeur = valeur + level(i)*((2-v)**3/6)*((2-u)**3/6)
-
-             ponderation = ponderation + ((2-v)**3/6)*((2-u)**3/6)
-
-
-          end if
-
-
-
-       elseif ( ( v <= 1.0 ) .and. ( v >= -1.0 ) ) then! Ligne du milieu      
-
-          if ( ( u => -2.0) .and. ( u <= -1.0 ) ) then ! Gauche
-
-             valeur = valeur + level(i)*((2-v)**3/6-4*(1-v)**3/6)*((2-u)**3/6)
-
-             ponderation = ponderation + ((2-v)**3/6-4*(1-v)**3/6)*((2-u)**3/6)
-
-          elseif ( ( u => -1.0) .and. ( u <= 1.0 ) ) then ! Milieu
-
-             valeur = valeur + level(i)*((2-v)**3/6-4*(1-v)**3/6)*((2-u)**3 - 4*(1-u)**3)/6
-
-             ponderation = ponderation + ((2-v)**3/6-4*(1-v)**3/6)*((2-u)**3 - 4*(1-u)**3)/6
-
-          elseif ( ( u => 1.0) .and. ( u <= 2.0 ) ) then ! Droite
-
-             valeur = valeur + level(i)*((2-v)**3/6-4*(1-v)**3/6)*((2-u)**3/6)
-
-             ponderation = ponderation + ((2-v)**3/6-4*(1-v)**3/6)*((2-u)**3/6)
-
-
-          end if
-
-
-
-       elseif ( ( v <= 2.0 ) .and. ( v >= 1.0 ) ) then! Ligne du bas
-
-
-
-          if ( ( u => -2.0) .and. ( u <= -1.0 ) ) then ! Gauche
-
-             valeur = valeur + level(i)*((2-v)**3/6)*((2-u)**3/6)
-
-             ponderation = ponderation + ((2-v)**3/6)*((2-u)**3/6)
-
-          elseif ( ( u => -1.0) .and. ( u <= 1.0 ) ) then ! Milieu
-             
-             valeur = valeur + level(i)*((2-v)**3/6)*((2-u)**3 - 4*(1-u)**3)/6
-
-             ponderation = ponderation + ((2-v)**3/6)*((2-u)**3 - 4*(1-u)**3)/6
-
-          elseif ( ( u => 1.0) .and. ( u <= 2.0 ) ) then ! Droite
-
-             valeur = valeur + level(i)*((2-v)**3/6)*((2-u)**3/6)
-
-             ponderation = ponderation + ((2-v)**3/6)*((2-u)**3/6)
-
-
-          
-          end if
-       
-       
-       end if
-       
-       
-    end do
-
-
-    do i = 1, size(noeuds,1)
-
-       u = (noeuds(i,1)-coord(1))/dx
-       v = (noeuds(i,2)-coord(2))/dx
+       u = abs(noeuds(i,1)-coord(1))/dx
+       v = abs(noeuds(i,2)-coord(2))/dx
 
        !Ligne du haut
        if ( ( v >= -2.0 ) .and. ( v <= -1.0 ) ) then
@@ -282,7 +165,7 @@ contains
              ponderation = ponderation + ((2-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
 
           !Carré droit            
-          else ( ( u >= 1.0) .and. ( u <= 2.0) ) then
+          elseif ( ( u >= 1.0) .and. ( u <= 2.0) ) then
 
              valeur = valeur + level(i)*((2-v)**3/6)*((2-u)**3/6)
 
@@ -307,7 +190,7 @@ contains
 
              ponderation = ponderation + ((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
           !Carré droit
-          else ( ( u >= 1.0) .and. ( u <= 2.0) ) then
+          elseif ( ( u >= 1.0) .and. ( u <= 2.0) ) then
 
              valeur = valeur + level(i)*((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6)
 
@@ -334,7 +217,7 @@ contains
              ponderation = ponderation + ((2-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
 
           !Carré droit
-          else ( ( u >= 1.0) .and. ( u <= 2.0) ) then
+          elseif ( ( u >= 1.0) .and. ( u <= 2.0) ) then
 
              valeur = valeur + level(i)*((2-v)**3/6)*((2-u)**3/6)
 
@@ -345,7 +228,7 @@ contains
 
        end if
 
- end do
+    end do
 
     if (ponderation > 1d-8) then  
        valeur = valeur/ponderation

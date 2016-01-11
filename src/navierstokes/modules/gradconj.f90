@@ -60,6 +60,49 @@ contains
 
   end subroutine grad_conj_opt
 
+  subroutine grad_conj_diphasique(X,B,dx,rho)
+    implicit none
+
+!    real(wp), dimension(:,:), intent(in)                  :: A
+    real(wp), dimension(:), intent(in)                    :: B, rho
+    real(wp), dimension(size(B,1)), intent(out)           :: X
+    real(wp), dimension(:,:), allocatable                 :: C, A_modif
+    real(wp), dimension(:), allocatable                   :: w, r, Aw, B_modif
+    real(wp), intent(in)                                  :: dx
+    real(wp)                                              :: alpha, beta, eps, err
+    integer                                               :: i, j, n
+
+!    n = size(A,1)
+
+    allocate(w(n), r(n), Aw(n))
+
+    eps = 0.0000001_wp
+    err = 1._wp
+
+    X = 1._wp
+    r = B - condi_diphasique(mat_vect_diphasique(X,dx,rho),rho)
+    err = sqrt(dot_product(r,r))
+    w = r
+    alpha = dot_product(w,r) / dot_product(condi_diphasique(mat_vect_diphasique(w,dx,rho),rho),r)
+    i = 0
+
+    do while((eps<err).and.(i<10000))
+
+       i = i + 1
+       X = X + alpha*w
+       r = B - condi_diphasique(mat_vect_diphasique(X,dx,rho),rho)
+       Aw = condi_diphasique(mat_vect_diphasique(w,dx,rho),rho)
+       err = sqrt(dot_product(r,r))
+       beta = dot_product(Aw-w,r) / dot_product(Aw,w)
+       w = r - beta*w
+       alpha = dot_product(w,r) / dot_product(condi_diphasique(mat_vect_diphasique(w,dx,rho),rho),w)
+
+    enddo
+
+    print*,i
+
+  end subroutine grad_conj_diphasique
+
 
 
 !!$subroutine grad_conj_test(A,X,B)

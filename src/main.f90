@@ -28,16 +28,16 @@ program main
   integer :: info
   real(8), dimension(2) :: g
   real(8) :: dx, dt, rho_air, rho_eau, nu_air, nu_eau, raff_size
-  integer :: i, j, Niter, ci, di, ui, k, meth, nbp, npart, raff_num, raff, temp, nbp_new
+  integer :: i, j, Niter, ci, di, ui, k, meth, nbp, npart, raff_num, raff, temp, nbp_new, remaill
   character(len=1) :: c, d, u
 
   dx = 1./N
   npart = 0
 
-  rho_air = 1000. !1.
+  rho_air = 100. !1.
   rho_eau = 1000. !1000.
-  nu_air = 0.9E-2 !15-6
-  nu_eau = 0.9E-2 !0.9E-6
+  nu_air = 0.9d-2 !15.d-6
+  nu_eau = 0.9d-2 !0.9d-6
   g = (/0.,-9.81/)
 
   print*, "Choix de la méthode :"
@@ -68,6 +68,8 @@ program main
      nbp = (N-1)*(N-1)
   end if
 
+  remaill = 2
+
   if(raff == 1) then
      print*, "Choisissez le nombre d'anneaux de chaque côté de l'interface :"
      read*, raff_num
@@ -79,6 +81,17 @@ program main
      read*, raff_size
      npart = npart_uni(1)*(raff_num*2+1)
      nbp = nbp + npart
+     print*, "Voulez-vous remailler entre chaque itération ?"
+     print*, "1 - Oui"
+     print*, "2 - Non"
+     read*, remaill
+     if(remaill < 1 .OR. remaill > 2) then
+        print*, "Erreur dans le choix du remaillage"
+        print*, "==========="
+        print*, "== ABORT =="
+        print*, "==========="
+        stop
+     end if
   end if
 
   allocate(particules(nbp,2), vitesses_particules(nbp,2), level_particules(nbp))
@@ -86,14 +99,6 @@ program main
   call initcoord(noeuds, centres)
 
   vitesses = 0.
-!!$  !vitesses(2:N,2:N,:) = 0.3
-
-!!$  !do i = 2, N
-!!$  !   do j = 2, N
-!!$  !      vitesses(i,j,:) = (/-(noeuds(i,j,1)-0.5)**2+0.25,-(noeuds(i,j,2)-0.5)**2+0.25/)
-!!$  !      print*, vitesses(i,j,:)
-!!$  !   end do
-!!$  !end do
   pressions = Patm
   
   do i = 1, N+1
@@ -135,8 +140,7 @@ program main
   call write("vitesses_y", 0, vect2(noeuds), vect1(vitesses(:,:,2)))
   call write("pressions", 0, vect2(centres), vect1(pressions))
 
-!!$  !call remplissage_poisson(A,dx,N)
-!!$  !call DGETRF(N*N, N*N, A, N*N, ipvt, info)
+  dt = dt/3
 
   do k = 1, Niter
 
@@ -156,8 +160,10 @@ program main
         !========================================== EULERIEN ==========================================!
         
         print*, 'Projection'
+<<<<<<< HEAD
         !call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
-        
+        call spirale(dt,tmax,noeuds,vitesses)
+
         print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp
            call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
@@ -196,7 +202,9 @@ program main
         !========================================= LAGRANGIEN =========================================
         
         print*, 'Méthode de projection'
+<<<<<<< HEAD
         !call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
+        call spirale(dt,tmax,noeuds,vitesses)
 
         print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp
@@ -206,7 +214,7 @@ program main
 
         print*, 'Transport des particules'
         call transport_particules(particules, vitesses_particules, dt, dx)
-        if(raff == 1) then
+        if(remaill == 1) then
            print*, 'Remaillage'
            call remaillage_particules(particules,vitesses_particules,level_particules,raff_num,nbp,npart,npart_uni,0.01d0,0.0001d0)
         end if
