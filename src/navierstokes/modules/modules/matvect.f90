@@ -150,8 +150,8 @@ contains
     !Y(N*N) = -2*X(N*N) + X(N*N-1) + X(N*N-N)              
     !  Y(N*N) = X(N*N)*dx
 
-    Y = 2 * Y    
-    Y(N*N) = X(N*N)*dx*dx
+    Y(N*N) = -X(N*N)*(1./(rho(N*N)+rho(N*N-1)) + 1./(rho(N*N)+rho(N*(N-1)))) &
+         & + X(N*N-1)/(rho(N*N)+rho(N*N-1)) + X(N*(N-1))/(rho(N*N)+rho(N*(N-1)))
 
   end function mat_vect_diphasique
 
@@ -200,5 +200,58 @@ contains
     CX(N*N) = -X(N*N)/2
 
   end function condi
+
+  function condi_diphasique(X, rho) result(CX)
+    
+    implicit none
+    
+    real(8), dimension(:), intent(in) :: X, rho
+    real(8), dimension(size(X)) :: CX
+    integer :: i,j,N
+
+    N = int(sqrt(float(size(X))))
+
+    CX(1) = -X(1)/(1./(rho(1)+rho(2)) + 1./(rho(1)+rho(N+1)))
+
+    do j = 2 , N-1
+
+       CX(j) =-X(j)/( 1./(rho(j)+rho(j-1)) + 1./(rho(j)+rho(j+1)) &
+            & + 1./(rho(j)+rho(j+N)) )
+
+    end do
+
+    CX(N) = -X(N)/(1/(rho(N)+rho(N-1)) + 1/(rho(N)+rho(2*N)))
+
+    do i = 2 , N-1
+
+       CX((i-1)*N+1) =-X((i-1)*N+1)/(1./(rho((i-1)*N+1)+rho((i-1)*N+2)) &
+            & + 1./(rho((i-1)*N+1)+rho((i-1)*N+N+1)) + 1./(rho((i-1)*N+1)+rho((i-1)*N-N+1)))
+
+       do j = 2 , N-1
+
+          CX((i-1)*N+j) =-X((i-1)*N+j)/( 1./(rho((i-1)*N+j  ) + rho((i-1)*N+j+1  )   )  &
+               & + 1./( rho( (i-1)*N+j ) + rho((i-1)*N+j-1  )    ) &
+               & + 1./(   rho( (i-1)*N+j ) + rho((i-1)*N+j-N  )      )  + 1./(  rho( (i-1)*N+j ) + rho((i-1)*N+j+N  )      ))
+
+       end do
+
+       CX(i*N) =-X(i*N)/(1./( rho( i*N )  + rho( i*N - 1  ) ) &
+            & + 1./(  rho( i*N  )  + rho((i-1)*N  )  ) + 1./(  rho( i*N  ) + rho( (i+1)*N  )  )  )
+
+    end do
+
+    CX(N*(N-1)+1)= -X(N*(N-1)+1)/( 1./( rho(N*(N-1)+1) + rho(N*(N-1)+2) ) &
+         & + 1./(rho(N*(N-1)+1 ) + rho(N*(N-1)-N+1)) )
+
+    do j = 2 , N-1
+
+       CX(N*(N-1)+j) =-X(N*(N-1)+j)/( 1./(rho( N*(N-1)+j) + rho(N*(N-1)+j+1)) &
+            & + 1./(rho( N*(N-1)+j) + rho(N*(N-1)+j-1)) + 1./(  rho(N*(N-1)+j) + rho( N*(N-1)+j-N)))
+
+    end do
+
+    CX(N*N) = -X(N*N)/(1./(rho(N*N)+rho(N*N-1)) + 1./(rho(N*N)+rho(N*(N-1))))
+
+  end function condi_diphasique
 
 end module matvectmod

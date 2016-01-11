@@ -129,7 +129,7 @@ contains
     end do
 
     u_next = 0
-!!$    u_next(:,N+1,1) = 1.
+   ! u_next(:,N+1,1) = 0.
 
     do i = 1, size(u_next,3)
        u_next(2:N,2:N,i) = u_star(2:N,2:N,i) - (dt/(2*dx*rho(2:N,2:N)))*grad_p(2:N,2:N,i)
@@ -179,9 +179,7 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-
-
-  !méthode de projection diphasique
+  !méthode de projection de Chorin diphasique
   subroutine projection_method_diphasique(u,p,rho,rho_centre,mu,g,dt,dx,level,A,ipvt)
     implicit none
 
@@ -255,7 +253,7 @@ contains
           
           temp2 = u(i,j,2) - u(i-1,j,2) + &
                & 0.25*(u(i,j,1)+u(i-1,j,1)+u(i,j+1,1)+u(i-1,j+1,1)) - &
-               & 0.25*(u(i,j,1)+u(i+1,j,1)+u(i+1,j,1)+u(i+1,j+1,1))
+               & 0.25*(u(i,j,1)+u(i-1,j,1)+u(i,j-1,1)+u(i-1,j-1,1))
 
           laplace_u(i,j,2) = ((mu(i,j+1)+mu(i,j))*(u(i,j+1,2)-u(i,j,2))-(mu(i,j)+mu(i,j-1))*(u(i,j,2)-u(i,j-1,2)))&
                & /(rho(i,j)*dx*dx) + &
@@ -276,10 +274,10 @@ contains
     end do
 
     u_star = 0
-    u_star(:,N+1,1) = 5.
+    u_star(:,N+1,1) = 0.
 
     do i = 1, size(u_star,3)
-       u_star(2:N,2:N,i) = u(2:N,2:N,i) + dt*( g(i) + mu(2:N,2:N)*laplace_u(:,:,i) - u_grad_u(:,:,i) )
+       u_star(2:N,2:N,i) = u(2:N,2:N,i) + dt*( g(i) + laplace_u(:,:,i) - u_grad_u(:,:,i) )
     end do
 
     !résolution problème de Poisson 
@@ -296,8 +294,6 @@ contains
        end do
     end do
 
-    B(N*N) = 1.013D5
-
     do i = 1, N
        do j = 1, N
           p_next_vect(i+(j-1)*N) = p_next(i,j)
@@ -306,29 +302,13 @@ contains
 
 
     !gradient conjugué
-
-    B = B*dx*dx
-
-    !modification tableau rho_centre en vecteur rho_centre_vect 
-
-    do i = 1 , size(rho_centre,1)
-       
-       do j = 1 , size(rho_centre,2)
-
-          rho_centre_vect(i+(j-1)*N) = rho_centre(i,j)
-
-       end do
-       
-    end do
-
-
-    !APPEL MÉTHODE DE RÉSOLUTION ADAPTÉ PB DE POISSON
-
-!!$    call grad_conj_opt(P_next_vect,B,dx)
-
-!!$    call DGETRF(N*N, N*N, A, N*N, ipvt, info)
-  !  call DGETRS('N', N*N, 1, A, N*N, ipvt, B, N*N, info)
-    P_next_vect = B    !calcul vitesse au temps n+1
+    rho_centre_vect = vect1(rho_centre)
+    B = condi_diphasique(B*dx*dx*0.5d0, rho_centre_vect)
+ 
+    P_next_vect = vect1(P_next)
+    call grad_conj_diphasique(P_next_vect,B,dx,rho_centre_vect)
+    P_next = unvect1(remoy(P_next_vect,Patm))
+    
 
     do i = 1, N
        do j = 1, N
@@ -348,7 +328,7 @@ contains
     end do
 
     u_next = 0
-    u_next(:,N+1,1) = 5.
+    u_next(:,N+1,1) = 0.
 
     do i = 1, size(u_next,3)
        u_next(2:N,2:N,i) = u_star(2:N,2:N,i) - (dt/(2*dx*rho(2:N,2:N)))*grad_p(2:N,2:N,i)
@@ -360,22 +340,22 @@ contains
     do i = 1, N
        do j = 1, N
           do k = 1, 2
-!!$             if(abs(u_next(i,j,k)) > abs(u_next(im,jm,km))) then
-!!$                im = i
-!!$                jm = j
-!!$                km = k
-!!$             end if
-             data = data + u_next(i,j,k)
+             if(abs(u_next(i,j,k)) > abs(u_next(im,jm,km))) then
+                im = i
+                jm = j
+                km = k
+             end if
+!!$             data = data + u_next(i,j,k)
           end do                   ! DU COUP LEVEL A ETE AJOUTE POUR L'INSTANT
        enddo
     end do
-!!$    if(level(im,jm) > 0.5) then
-!!$       nom = "air"
-!!$    else
-!!$       nom = "eau"
-!!$    end if
-!!$    print*, "Maximum de la vitesse atteint en (",im,",",jm,",",km,") = ",u_next(im,jm,km)," dans l'",nom
-    print*, data
+    if(level(im,jm) > 0.5) then
+       nom = "air"
+    else
+       nom = "eau"
+    end if
+    print*, "Maximum de la vitesse atteint en (",im,",",jm,",",km,") = ",u_next(im,jm,km)," dans l'",nom
+!!$    print*, data
 !!$    read*,
 
     u = u_next
