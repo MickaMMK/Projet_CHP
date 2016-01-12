@@ -33,7 +33,7 @@ contains
 !!$    A_modif = matmul(C,A)
 !!$    B_modif = matmul(C,B)
 
-    eps = 0.0000001_wp
+    eps = 0.000001_wp
     err = 1._wp
 
     X = 1._wp
@@ -76,7 +76,7 @@ contains
 
     allocate(w(n), r(n), Aw(n))
 
-    eps = 0.0000001_wp
+    eps = 0.0001_wp
     err = 1._wp
 
     X = 1._wp
@@ -86,7 +86,7 @@ contains
     alpha = dot_product(w,r) / dot_product(condi_diphasique(mat_vect_diphasique(w,dx,rho),rho),r)
     i = 0
 
-    do while((eps<err).and.(i<10000))
+    do while((eps<err).and.(i<100000))
 
        i = i + 1
        X = X + alpha*w
