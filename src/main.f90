@@ -151,9 +151,9 @@ program main
   
   do i = 1, N+1
      do j = 1, N+1
-        level(i,j) = pos*(min(sqrt((noeuds(i,j,1)-0.5)**2+(noeuds(i,j,2)-0.5)**2) - 0.2, noeuds(i,j,2)-0.1))
+        level(i,j) = pos*(min(sqrt((noeuds(i,j,1)-0.5)**2+(noeuds(i,j,2)-0.5)**2) - 0.2, 10.d0))!noeuds(i,j,2)-0.1))
         if(sqrt((noeuds(i,j,1)-0.5)**2+(noeuds(i,j,2)-0.5)**2) - 0.2 .le. 0) then
-           vitesses(i,j,2) = -5.
+           vitesses(i,j,2) = -2.
         end if
      end do
   end do
@@ -290,19 +290,19 @@ program main
            call transport_level(noeuds, vitesses, level, dt, dx)
         end if
 
-        if(writo) then
+!!$        if(writo) then
            print*, 'Ecriture'
-           call write("level", k, vect2(noeuds), vect1(level))
+           call write("level", ki, vect2(noeuds), vect1(level))
 !!$           call write("vitesses_x", k, vect2(noeuds), vect1(vitesses(:,:,1)))
 !!$           call write("vitesses_y", k, vect2(noeuds), vect1(vitesses(:,:,2)))
 !!$           call write("pressions", k, vect2(centres), vect1(pressions))
 
            if(raff == 1) then
-              call write("level_particules", k, particules, level_particules)
+              call write("level_particules", ki, particules, level_particules)
 !!$              call write("vitesses_x_particules", k, particules, vitesses_particules(:,1))
 !!$              call write("vitesses_y_particules", k, particules, vitesses_particules(:,2))
            end if
-        end if
+!!$        end if
 
         !==============================================================================================
 
