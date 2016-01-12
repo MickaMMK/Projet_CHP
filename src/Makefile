@@ -3,7 +3,7 @@
 F90 = gfortran
 DEBUG_FLAG = -g -fbounds-check
 OPTIM_FLAG = -O3
-USUAL_FLAG = 
+USUAL_FLAG =
 
 LIBS_DIR = /usr/lib64
 LIBS = -llapack -lblas
