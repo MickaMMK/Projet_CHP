@@ -151,9 +151,9 @@ contains
        enddo
     end do
     if(level(im,jm) > 0) then
-       nom = "air"
-    else
        nom = "eau"
+    else
+       nom = "air"
     end if
     print*, "Maximum de la vitesse atteint en (",im,",",jm,",",km,") = ",u_next(im,jm,km)," dans l'",nom
 !!$    print*, data
@@ -220,7 +220,7 @@ contains
 
 
     N = size(u,1)-1
-
+ 
     allocate(laplace_u(2:N,2:N,2),u_grad_u(2:N,2:N,2),grad_p(2:N,2:N,2))
     allocate(u_star(N+1,N+1,2))
     allocate(B(N*N))
@@ -296,8 +296,9 @@ contains
 
     !gradient conjugué
     rho_centre_vect = vect1(rho_centre)
-    B = condi_diphasique(B*dx*dx*0.5d0, rho_centre_vect)
- 
+!!$    B = condi_diphasique(B*dx*dx*0.5d0, rho_centre_vect)
+    B = B*dx*dx*0.5d0
+
     P_next_vect = vect1(P_next)
     call grad_conj_diphasique(P_next_vect,B,dx,rho_centre_vect)
     P_next = unvect1(remoy(P_next_vect,Patm))
