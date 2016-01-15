@@ -7,10 +7,13 @@ program main
   use raffinage
 
   implicit none
+!coder 3 normes
+!Eulerien: level
+!lagrangien: noeuds
 
   !--------------------------------
   integer, parameter :: N = 50    !
-  integer, parameter :: tmax = 5  !
+  real*8, parameter :: tmax = 0. !
   real(8), parameter :: cfl = 0.9 !
   !--------------------------------
 
@@ -34,7 +37,7 @@ program main
   dx = 1./N
   npart = 0
 
-  rho_air = 100. !1.
+  rho_air = 1000. !1.
   rho_eau = 1000. !1000.
   nu_air = 0.9d-2 !15.d-6
   nu_eau = 0.9d-2 !0.9d-6
@@ -103,7 +106,7 @@ program main
   
   do i = 1, N+1
      do j = 1, N+1
-        level(i,j) = sqrt((noeuds(i,j,1)-0.5)**2+(noeuds(i,j,2)-0.5)**2) - 0.2
+        level(i,j) = sqrt((noeuds(i,j,1)-0.5)**2+(noeuds(i,j,2)-0.5)**2) - 0.15
         if(level(i,j) < 0) then
            vitesses(i,j,2) = -2.
         end if
@@ -140,8 +143,6 @@ program main
   call write("vitesses_y", 0, vect2(noeuds), vect1(vitesses(:,:,2)))
   call write("pressions", 0, vect2(centres), vect1(pressions))
 
-  dt = dt/3
-
   do k = 1, Niter
 
      print*, "Itération ",k," sur ",Niter
@@ -152,18 +153,13 @@ program main
 
      if(meth == 1) then
 
-        !==============================================================================================!
-        !== Pour changer les vitesses dans les deux méthodes (spirale, commenter projetction) =========!
-
-
-        !==============================================================================================!
-        !========================================== EULERIEN ==========================================!
+        !==============================================================================================
+        !========================================== EULERIEN ==========================================
         
         print*, 'Projection'
-<<<<<<< HEAD
-        !call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
-        call spirale(dt,tmax,noeuds,vitesses)
-
+!!$        call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
+!!$        call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
+        call spirale(dt,k,tmax,noeuds,vitesses)
         print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp
            call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
@@ -202,10 +198,9 @@ program main
         !========================================= LAGRANGIEN =========================================
         
         print*, 'Méthode de projection'
-<<<<<<< HEAD
-        !call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
-        call spirale(dt,tmax,noeuds,vitesses)
-
+!!$        call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
+!!$        call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
+        call spirale(dt,k,tmax,noeuds,vitesses)
         print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp
            call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
@@ -226,12 +221,12 @@ program main
            end do
         end do
 
-        if(mod(k,50) == 0) then
-           print*, 'Retour des points lagrangiens sur la grille eulerienne'
-           particules(1:(N-1)*(N-1),:) = vect2(noeuds(2:N,2:N,:))
-           vitesses_particules(1:(N-1)*(N-1),:) = vect2(vitesses(2:N,2:N,:))
-           level_particules(1:(N-1)*(N-1)) = vect1(level(2:N,2:N))
-        end if
+!!$        if(mod(k,50) == 0) then
+!!$           print*, 'Retour des points lagrangiens sur la grille eulerienne'
+!!$           particules(1:(N-1)*(N-1),:) = vect2(noeuds(2:N,2:N,:))
+!!$           vitesses_particules(1:(N-1)*(N-1),:) = vect2(vitesses(2:N,2:N,:))
+!!$           level_particules(1:(N-1)*(N-1)) = vect1(level(2:N,2:N))
+!!$        end if
         
         print*, 'Ecriture'
         call write("level_particules", k, particules, level_particules)

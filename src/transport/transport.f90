@@ -54,9 +54,9 @@ contains
 
     Nm = size(particules,1)
     do i = 1, Nm
-          call euler(vitesses_particules(i,:), particules(i,:), dt)
+       call euler(vitesses_particules(i,:), particules(i,:), dt)
     end do
-    
+
 
   end subroutine transport_particules
 
@@ -99,21 +99,25 @@ contains
 
   end subroutine transport_level_EL
 
-  subroutine spirale(dt,tmax,points,vitesses)
+  subroutine spirale(dt,k,tmax,points,vitesses)
     implicit none
     real*8,dimension(:,:,:),intent(in)::points
     real*8,dimension(:,:,:),intent(out)::vitesses
-    real*8,intent(inout)::t,tmax
+    real*8,intent(in)::dt
+    real*8::tmax
+    real(8) :: pi = 3.1415926535897932384626433842795028841971693993
     integer::i,j,k
 
-    do i=1,size(points(:,1))
-       do j=1,size(points(1,:))
+    do i=1,size(points(:,1,1))
+       do j=1,size(points(1,:,1))
           vitesses(i,j,1)=cos(pi*dt*k/tmax)*&
-               (-sin(pi*(points(i,j,1)-.5d0))**2*sin(2d0*pi*(points(i,j,2)-.5d0)))
+               (-sin(pi*points(i,j,1))**2*sin(2.d0*pi*points(i,j,2)))
           vitesses(i,j,2)=cos(pi*dt*k/tmax)*&
-               (sin(2d0*pi*(points(i,j,1)-.5d0))*sin(pi*(points(i,j,2)-.5d0))**2)
+               (sin(2.d0*pi*points(i,j,1))*sin(pi*points(i,j,2))**2)
        end do
     end do
+    print*, cos(pi*dt*k/tmax)
 
   end subroutine spirale
+
 end module transportmod
