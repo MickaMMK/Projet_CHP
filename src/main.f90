@@ -151,10 +151,10 @@ program main
   
   do i = 1, N+1
      do j = 1, N+1
-        level(i,j) = pos*(sqrt((noeuds(i,j,1)-0.5)**2+(noeuds(i,j,2)-0.5)**2) - 0.2)
-!!$        if(sqrt((noeuds(i,j,1)-0.5)**2+(noeuds(i,j,2)-0.5)**2) - 0.2 .le. 0) then
-!!$           vitesses(i,j,2) = -2.
-!!$        end if
+        level(i,j) = pos*(min(sqrt((noeuds(i,j,1)-0.5)**2+(noeuds(i,j,2)-0.5)**2) - 0.2, 10.d0))!noeuds(i,j,2)-0.1))
+        if(sqrt((noeuds(i,j,1)-0.5)**2+(noeuds(i,j,2)-0.5)**2) - 0.2 .le. 0) then
+           vitesses(i,j,2) = 0.
+        end if
      end do
   end do
 
@@ -205,6 +205,9 @@ program main
   do while (t .le. tmax)
 
      ki = ki + 1
+!!$     if(ki == 3) then
+!!$        stop
+!!$     end if
      
      cfl_advection = dx/maxval(abs(vitesses))
      cfl_L2 = 2*min(nu_air,nu_eau)/maxval(abs(vitesses))**2

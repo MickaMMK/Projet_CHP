@@ -63,31 +63,40 @@ contains
   subroutine grad_conj_diphasique(X,B,dx,rho)
     implicit none
 
-!    real(wp), dimension(:,:), intent(in)                  :: A
     real(wp), dimension(:), intent(in)                    :: B, rho
     real(wp), dimension(size(B,1)), intent(out)           :: X
-!!$    real(wp), dimension(:,:), allocatable                 :: C, A_modif
-    real(wp), dimension(:), allocatable                   :: z, r, Aw, B_modif, r_new, z_new, d
+    real(wp), dimension(:), allocatable                   :: h, g, g_old
+!!$    real(wp), dimension(:), allocatable                   :: w, r, Aw
     real(wp), intent(in)                                  :: dx
-    real(wp)                                              :: alpha, beta, eps, err
+    real(wp)                                              :: alpha, gamma, eps, err
     integer                                               :: i, j, n
 
     n = size(B)
 
-    allocate(z(n), r(n), z_new(n), r_new(n), d(n))
+    allocate(g(n), h(n), g_old(n))
+!!$    allocate(w(n), r(n), Aw(n))
 
-!!$    open(unit=11, file="matriceA", status="replace")
-!!$    do i = 1, n
+    eps = 0.0001_wp
+
+    X = 1._wp
+
+!!$    open(unit = 11, file = "matriceA", status = "replace")
+!!$    open(unit = 12, file = "vectB", status = "replace")
+!!$    do i = 1, size(B)
 !!$       X = 0.d0
 !!$       X(i) = 1.d0
-!!$       write(11,*) condi_diphasique(mat_vect_diphasique(X,dx,rho),rho)
+!!$       write(11,*) mat_vect_diphasique(X,dx,rho)
+!!$       write(12,*) B(i)
 !!$    end do
 !!$    close(11)
+!!$    close(12)
+!!$    stop
 
-    eps = 0.001_wp
-    err = 1._wp
 
-!!$    X = 1._wp
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!Gradient conjugué avec conditionnement Pb: Pas symétrique. S'écrase mais diverge
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 !!$    r = B - condi_diphasique(mat_vect_diphasique(X,dx,rho),rho)
 !!$    err = sqrt(dot_product(r,r))
 !!$    w = r
@@ -101,35 +110,57 @@ contains
 !!$       r = B - condi_diphasique(mat_vect_diphasique(X,dx,rho),rho)
 !!$       Aw = condi_diphasique(mat_vect_diphasique(w,dx,rho),rho)
 !!$       err = sqrt(dot_product(r,r))
-!!$       beta = dot_product(Aw-w,r) / dot_product(Aw,w)
-!!$       w = r - beta*w
+!!$       gamma = dot_product(Aw-w,r) / dot_product(Aw,w)
+!!$       w = r - gamma*w
 !!$       alpha = dot_product(w,r) / dot_product(condi_diphasique(mat_vect_diphasique(w,dx,rho),rho),w)
 !!$
 !!$    enddo
 !!$
 !!$    print*,i
 
-    x = 1._wp
-    r = B - mat_vect_diphasique(x,dx,rho)
-    z = condi_diphasique(r,rho)
-    d = z
 
 
-    do while((eps<err).and.(i<100000))
 
-       alpha = dot_product(r,z) / dot_product(d,mat_vect_diphasique(d,dx,rho))
-       x = x + alpha * d
-       r_new = r - alpha*mat_vect_diphasique(d,dx,rho)
-       z_new = condi_diphasique(r_new,rho)
-       beta = dot_product(z_new,r_new) / dot_product(z,r)
-       d = r_new + beta * d
-       r = r_new
-       z = z_new
+!!$    r = B - mat_vect_diphasique(X,dx,rho)
+!!$    err = abs(dot_product(condi_diphasique(r,rho),r))
+!!$    w = condi_diphasique(r,rho)
+!!$    alpha = dot_product(w,r) / dot_product(mat_vect_diphasique(w,dx,rho),r)
+!!$    i = 0
+!!$
+!!$    do while((eps<err).and.(i<100000))
+!!$
+!!$       i = i + 1
+!!$       X = X + alpha*w
+!!$       r = B - mat_vect_diphasique(X,dx,rho)
+!!$       Aw = condi_diphasique(mat_vect_diphasique(w,dx,rho),rho)
+!!$       err = abs(dot_product(condi_diphasique(r,rho),r))
+!!$       gamma = dot_product(Aw-w,r) / dot_product(Aw,w)
+!!$       w = condi_diphasique(r,rho) - gamma*w
+!!$       alpha = dot_product(w,r) / dot_product(mat_vect_diphasique(w,dx,rho),w)
+!!$
+!!$    enddo
+!!$
+!!$    print*,i
+    
+    g = mat_vect_diphasique(X,dx,rho) - B
+    h = -condi_diphasique(g,rho)
+    err = -dot_product(condi_diphasique(g,rho),g)
+    i = 0
+
+    do while((err > eps) .and. (i .le. 20000))
+
+       alpha = -dot_product(g,h)/dot_product(h,mat_vect_diphasique(h,dx,rho))
+       x = x + alpha*h
+       g_old = g
+       g = g + alpha*mat_vect_diphasique(h,dx,rho)
+       gamma = dot_product(condi_diphasique(g,rho),g)/dot_product(condi_diphasique(g_old,rho),g_old)
+       h = -condi_diphasique(g,rho) + gamma*h
+       err = -dot_product(condi_diphasique(g,rho),g)
        i = i + 1
-       err = dot_product(r,r)
-       print*, err
-    enddo
 
+    end do
+
+    print*, i
 
 
   end subroutine grad_conj_diphasique

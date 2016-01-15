@@ -30,7 +30,7 @@ contains
     ! vitesse au temps n
     real(kind=8), dimension(:,:,:), intent(inout)       :: u
     real(kind=8), dimension(:,:), intent(inout)         :: p
-    real(kind=8), dimension(:,:), intent(in)            :: level
+    real(kind=8), dimension(:,:), intent(in)         :: level
 
     !vitesse au temps n+1
     real(kind=8), dimension(size(u,1),size(u,2),size(u,3))  :: u_next
@@ -296,7 +296,7 @@ contains
 
     !gradient conjugué
     rho_centre_vect = vect1(rho_centre)
-!!$    B = condi_diphasique(B*dx*dx*0.5d0, rho_centre_vect)   !!!!!!!!!!!!!!!!!!!             ICI
+!!$    B = condi_diphasique(B*dx*dx*0.5d0, rho_centre_vect)
     B = B*dx*dx*0.5d0
 
     P_next_vect = vect1(P_next)
