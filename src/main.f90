@@ -39,7 +39,7 @@ program main
 
   rho_air = 10. !800. !1.
   rho_eau = 1000. !1000.
-  nu_air = 0.9d-2 !15.d-6
+  nu_air = 15d-2 !15.d-6
   nu_eau = 0.9d-2 !0.9d-6
   g = (/0.,-9.81/)
 
@@ -205,9 +205,6 @@ program main
   do while (t .le. tmax)
 
      ki = ki + 1
-!!$     if(ki == 3) then
-!!$        stop
-!!$     end if
      
      cfl_advection = dx/maxval(abs(vitesses))
      cfl_L2 = 2*min(nu_air,nu_eau)/maxval(abs(vitesses))**2
