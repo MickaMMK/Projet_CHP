@@ -4,6 +4,7 @@ F90 = gfortran
 DEBUG_FLAG = -g -fbounds-check
 OPTIM_FLAG = -O3
 USUAL_FLAG =
+PROF_FLAG = -p
 
 LIBS_DIR = /usr/lib64
 LIBS = -llapack -lblas
@@ -28,6 +29,11 @@ debug :
 optim :
 	$(F90) $(OPTIM_FLAG) $(SRC) -L$(LIBS_DIR) $(LIBS) -o $(PROG)
 	rm *.mod
+
+prof :
+	$(F90) $(PROF_FLAG)  $(SRC) -L$(LIBS_DIR) $(LIBS) -o $(PROG)
+	rm *.mod
+	rm *.txt
 
 clean :
 	rm *.o *.mod *~ core a.out $(PROG)

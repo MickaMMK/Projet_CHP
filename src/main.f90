@@ -7,13 +7,18 @@ program main
   use raffinage
 
   implicit none
+!coder 3 normes
+!Eulerien: level
+!lagrangien: noeuds
+
 
   !-----------------------------------!
   integer, parameter :: N = 50        !
-  real(8), parameter :: tmax = 5      !
+  real(8), parameter :: tmax = 0.5    !
   real(8), parameter :: cfl = 0.9     !
-  real(8), parameter :: period = 0.01 !
+  real(8), parameter :: period = 0.1  !
   !-----------------------------------!
+
 
   real(8), dimension(N+1,N+1,2) :: noeuds, vitesses
   real(8), dimension(:,:), allocatable :: particules, vitesses_particules, new_part, partitemp
@@ -36,6 +41,7 @@ program main
   npart = 0
 
   rho_air = 10. !800. !1.
+
   rho_eau = 1000. !1000.
   nu_air = 15d-2 !15.d-6
   nu_eau = 0.9d-2 !0.9d-6
@@ -52,7 +58,9 @@ program main
   vitesses = 0.
   pressions = Patm
   
+
   call initlevel(N, noeuds, 0.5d0, 0.5d0, 0.2d0, 0.d0, 0.d0, pos, level, vitesses)
+
 
   if(meth == 2) then
      particules(1:(N-1)*(N-1),:) = vect2(noeuds(2:N,2:N,:))
@@ -66,6 +74,7 @@ program main
 !!$  call write("vitesses_x", 0, vect2(noeuds), vect1(vitesses(:,:,1)))
 !!$  call write("vitesses_y", 0, vect2(noeuds), vect1(vitesses(:,:,2)))
 !!$  call write("pressions", 0, vect2(centres), vect1(pressions))
+
 
   if(raff == 1 .or. meth == 2) then
      call write("level_particules", 0, particules, level_particules)
@@ -108,6 +117,7 @@ program main
         writo = .false.
      end if
 
+
      print*, "==============================="
      print*, "dt = ",dt
      print*, "==============================="
@@ -124,7 +134,7 @@ program main
         print*, 'Projection'
 !!$        call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
         call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
-
+!!$        call spirale(t,tmax,noeuds,vitesses)
         print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp
            call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
@@ -164,8 +174,8 @@ program main
         
         print*, 'Méthode de projection'
 !!$        call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
-        call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
-
+       call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
+!!$        call spirale(t,tmax,noeuds,vitesses)
         print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp
            call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
@@ -194,6 +204,7 @@ program main
               level_particules(1:(N-1)*(N-1)) = vect1(level(2:N,2:N))
            end if
         end if
+
         
         if(writo) then
            print*, 'Ecriture'
