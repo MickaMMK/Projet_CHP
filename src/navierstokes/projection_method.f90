@@ -342,7 +342,6 @@ contains
        nom = "air"
     end if
     print*, "Maximum de la vitesse atteint en (",im,",",jm,",",km,") = ",u_next(im,jm,km)," dans l'",nom
-    print*, level(im,jm)
 !!$    print*, data
 !!$    read*,
 
