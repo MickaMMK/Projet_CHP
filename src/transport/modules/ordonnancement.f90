@@ -1,4 +1,4 @@
-program ordonnancement
+module ordonnancement
   implicit none
 
   type ordpoint
@@ -26,4 +26,4 @@ contains
     particules = temp
   end subroutine reordre
 
-end program ordonnancement
+end module ordonnancement

@@ -99,24 +99,24 @@ contains
 
   end subroutine transport_level_EL
 
-  subroutine spirale(dt,k,tmax,points,vitesses)
+  subroutine spirale(t,tmax,points,vitesses)
     implicit none
     real*8,dimension(:,:,:),intent(in)::points
     real*8,dimension(:,:,:),intent(out)::vitesses
-    real*8,intent(in)::dt
+    real*8,intent(in)::t
     real*8::tmax
     real(8) :: pi = 3.1415926535897932384626433842795028841971693993
-    integer::i,j,k
+    integer::i,j
 
     do i=1,size(points(:,1,1))
        do j=1,size(points(1,:,1))
-          vitesses(i,j,1)=cos(pi*dt*k/tmax)*&
+          vitesses(i,j,1)=cos(pi*t/tmax)*&
                (-sin(pi*points(i,j,1))**2*sin(2.d0*pi*points(i,j,2)))
-          vitesses(i,j,2)=cos(pi*dt*k/tmax)*&
+          vitesses(i,j,2)=cos(pi*t/tmax)*&
                (sin(2.d0*pi*points(i,j,1))*sin(pi*points(i,j,2))**2)
        end do
     end do
-    print*, cos(pi*dt*k/tmax)
+
 
   end subroutine spirale
 
