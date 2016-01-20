@@ -50,14 +50,7 @@ program main
   vitesses = 0.
   pressions = Patm
   
-  do i = 1, N+1
-     do j = 1, N+1
-        level(i,j) = pos*(min(sqrt((noeuds(i,j,1)-0.5)**2+(noeuds(i,j,2)-0.5)**2) - 0.2, 10.d0))!noeuds(i,j,2)-0.1))
-        if(sqrt((noeuds(i,j,1)-0.5)**2+(noeuds(i,j,2)-0.5)**2) - 0.2 .le. 0) then
-           vitesses(i,j,2) = 0.
-        end if
-     end do
-  end do
+  call initlevel(N, noeuds, 0.5d0, 0.5d0, 0.2d0, 0.d0, 0.d0, pos, level, vitesses)
 
   if(meth == 2) then
      particules(1:(N-1)*(N-1),:) = vect2(noeuds(2:N,2:N,:))

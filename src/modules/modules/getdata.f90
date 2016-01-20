@@ -51,7 +51,7 @@ contains
 
     if(raff == 1) then
        call askwarning_int(raff_num, "Choisissez le nombre d'anneaux de chaque côté de l'interface &
-            &(0 pour du simple front tracking) :", (/""/), 0, 20, "Erreur dans le nombre d'anneaux", 1, 3,&
+            &(0 pour du simple front tracking) :", (/""/), 0, 20, "Erreur dans le nombre d'anneaux", 0, 3,&
             & "La valeur donnée pour le nombre d'anneaux semble", .true.)
        allocate(npart_uni(raff_num*2+1))
        call askwarning_int(npart_uni(1), "Choisissez le nombre de points lagrangiens par anneau :", (/""/),&
