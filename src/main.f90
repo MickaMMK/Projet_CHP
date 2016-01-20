@@ -15,8 +15,6 @@ program main
   real(8), parameter :: period = 0.01 !
   !-----------------------------------!
 
-  real(8), parameter :: pi = 3.1415926535897932384626433842795028841971693993
-
   real(8), dimension(N+1,N+1,2) :: noeuds, vitesses
   real(8), dimension(:,:), allocatable :: particules, vitesses_particules, new_part, partitemp
   real(8), dimension(N,N,2) :: centres
@@ -43,104 +41,7 @@ program main
   nu_eau = 0.9d-2 !0.9d-6
   g = (/0.,-9.81/)
 
-  print*, "Choix de la méthode :"
-  print*, "1 - Eulerien"
-  print*, "2 - Lagrangien"
-  read*, meth
-  nbp = 0
-  if(meth < 1 .OR. meth > 2) then
-     print*, "Erreur dans le choix de la méthode"
-     print*, "==========="
-     print*, "== ABORT =="
-     print*, "==========="
-     stop
-  end if
-  if(meth == 2) then
-     print*, "Souhaitez-vous reprojeter les points lagrangiens sur la grille eulerienne"
-     print*, "1 - Oui"
-     print*, "2 - Non"
-     read*, reproj
-     if(reproj < 1 .OR. reproj > 2) then
-        print*, "Erreur dans le choix de la reprojection"
-        print*, "==========="
-        print*, "== ABORT =="
-        print*, "==========="
-        stop
-     else if(reproj == 2) then
-        reproj = -1
-     else if(reproj == 1) then
-        print*, "Combien d'itérations entre chaque reprojection ?"
-        read*, reproj
-     end if
-  end if
-  print*, "Souhaitez-vous mettre l'eau :"
-  print*, "1 - Au centre"
-  print*, "2 - A l'extérieur"
-  read*, pos
-  if(pos < 1 .OR. pos > 2) then
-     print*, "Erreur dans le choix de la position de l'eau"
-     print*, "==========="
-     print*, "== ABORT =="
-     print*, "==========="
-     stop
-  elseif(pos == 1) then
-     pos = -1
-  elseif(pos == 2) then
-     pos = 1
-  end if
-  print*, "Quelle transition à l'interface ?"
-  print*, "1 - Discontinuité"
-  print*, "2 - Linéaire"
-  print*, "3 - Exponentielle"
-  read*, transi
-  if(transi < 1 .OR. transi > 3) then
-     print*, "Erreur dans le choix de la transition à l'interface"
-     print*, "==========="
-     print*, "== ABORT =="
-     print*, "==========="
-     stop
-  end if
-  print*, "Souhaitez-vous rajouter des points lagrangiens aux abords de l'interface :"
-  print*, "1 - Oui"
-  print*, "2 - Non"
-  read*, raff
-  if(raff < 1 .OR. raff > 2) then
-     print*, "Erreur dans le choix de la position de l'eau"
-     print*, "==========="
-     print*, "== ABORT =="
-     print*, "==========="
-     stop
-  end if
-     
-  if(meth == 2) then
-     nbp = (N-1)*(N-1)
-  end if
-
-  remaill = 2
-
-  if(raff == 1) then
-     print*, "Choisissez le nombre d'anneaux de chaque côté de l'interface :"
-     read*, raff_num
-     allocate(npart_uni(raff_num*2+1))
-     print*, "Choisissez le nombre de points lagrangiens par anneau :"
-     read*, npart_uni(1)
-     npart_uni = npart_uni(1)
-     print*, "Choisissez la distance entre chaque anneau :"
-     read*, raff_size
-     npart = npart_uni(1)*(raff_num*2+1)
-     nbp = nbp + npart
-     print*, "Voulez-vous remailler entre chaque itération ?"
-     print*, "1 - Oui"
-     print*, "2 - Non"
-     read*, remaill
-     if(remaill < 1 .OR. remaill > 2) then
-        print*, "Erreur dans le choix du remaillage"
-        print*, "==========="
-        print*, "== ABORT =="
-        print*, "==========="
-        stop
-     end if
-  end if
+  call getdata(N, meth, reproj, pos, transi, raff, remaill, nbp, npart_uni, npart, raff_num, raff_size)
 
   allocate(particules(nbp,2), vitesses_particules(nbp,2), level_particules(nbp))
   
@@ -163,18 +64,7 @@ program main
      level_particules(1:(N-1)*(N-1)) = vect1(level(2:N,2:N))
   end if
   if(raff == 1) then
-     do i = nbp-npart+1, nbp-npart+npart_uni(1)
-        particules(i,:) = (/0.5+0.2*cos(2*pi*i/npart_uni(1)), 0.5+0.2*sin(2*pi*i/npart_uni(1))/)
-        level_particules(i) = 0.
-        do j = 1, raff_num
-           particules(2*j*npart_uni(1)+i,:) = (/0.5+(0.2-j*raff_size)*cos(2*pi*i/npart_uni(1)), &
-                & 0.5+(0.2-j*raff_size)*sin(2*pi*i/npart_uni(1))/)
-           level_particules(2*j*npart_uni(1)+i) = -pos*raff_size*j
-           particules((2*j-1)*npart_uni(1)+i,:) = (/0.5+(0.2+j*raff_size)*cos(2*pi*i/npart_uni(1)), &
-                & 0.5+(0.2+j*raff_size)*sin(2*pi*i/npart_uni(1))/)
-           level_particules((2*j-1)*npart_uni(1)+i) = pos*raff_size*j
-        end do
-     end do
+     call initpart(particules(nbp-npart+1:nbp,:), level_particules(nbp-npart+1:nbp), npart_uni(1), raff_num, raff_size, pos)
   end if
 
   call write("level", 0, vect2(noeuds), vect1(level))
