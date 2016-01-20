@@ -1,7 +1,10 @@
 module modmainmod
   
   use initcoordmod
+  use initlevelmod
+  use initpartmod
   use writemod
+  use getdatamod
 
   implicit none
 
