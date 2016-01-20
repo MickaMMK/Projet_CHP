@@ -1,0 +1,13 @@
+!POUR MARTEL CASTIN, OU D'AUTRES!
+
+Compiler en utilisant -p, par exemple:
+
+$ gfortran -p prog.f90 -o run
+
+se crée un fichier gmon.out. Pour utiliser gprof sur l'executable il faut d'abord éxécuter comme si de rien n'était, puis lancer 
+
+$ gprof ./run gmon.out > analyse.txt
+
+le fichier analyse.txt contient les données de profilage
+
+GG
