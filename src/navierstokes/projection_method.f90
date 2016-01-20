@@ -147,7 +147,7 @@ contains
                 km = k
              end if
 !!$             data = data + u_next(i,j,k)
-          end do                   ! DU COUP LEVEL A ETE AJOUTE POUR L'INSTANT
+          end do                   ! DU COUP LEVEL ET POS AJOUTES POUR L'INSTANT
        enddo
     end do
     if(level(im,jm) > 0) then
@@ -202,7 +202,7 @@ contains
     real(kind=8), dimension(size(rho_centre,1)*size(rho_centre,2))                :: rho_centre_vect
 
     !paramètres numériques
-    real(kind=8), intent(in)                                                      :: dt, dx 
+    real(kind=8), intent(in)                                                      :: dt, dx
     integer :: N, i, j
 
     !matrice de Poisson et second membre
@@ -333,13 +333,13 @@ contains
                 km = k
              end if
 !!$             data = data + u_next(i,j,k)
-          end do                   ! DU COUP LEVEL A ETE AJOUTE POUR L'INSTANT
+          end do                   ! DU COUP LEVEL ET POS AJOUTES POUR L'INSTANT
        enddo
     end do
-    if(level(im,jm) > 0.5) then
-       nom = "air"
-    else
+    if(level(im,jm) > 0) then
        nom = "eau"
+    else
+       nom = "air"
     end if
     print*, "Maximum de la vitesse atteint en (",im,",",jm,",",km,") = ",u_next(im,jm,km)," dans l'",nom
 !!$    print*, data
