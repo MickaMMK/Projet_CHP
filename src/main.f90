@@ -41,7 +41,6 @@ program main
   npart = 0
 
   rho_air = 10. !800. !1.
-
   rho_eau = 1000. !1000.
   nu_air = 15d-2 !15.d-6
   nu_eau = 0.9d-2 !0.9d-6
@@ -57,10 +56,8 @@ program main
 
   vitesses = 0.
   pressions = Patm
-  
 
   call initlevel(N, noeuds, 0.5d0, 0.5d0, 0.2d0, 0.d0, 0.d0, pos, level, vitesses)
-
 
   if(meth == 2) then
      particules(1:(N-1)*(N-1),:) = vect2(noeuds(2:N,2:N,:))
@@ -104,19 +101,7 @@ program main
      cfl_L2 = 2*min(nu_air,nu_eau)/maxval(abs(vitesses))**2
      dt = cfl*min(cfl_advection,cfl_visco,cfl_L2)
 
-     if (tspent + dt .gt. period) then
-        dt = period - tspent
-        tspent = 0
-        writo = .true.
-        k = k + 1
-     else
-        if (period - (tspent + dt) .lt. 0.2d0*dt ) then
-           dt = 0.7*dt
-        end if
-        tspent = tspent + dt
-        writo = .false.
-     end if
-
+     call dtadap(dt, tspent, period, writo, 0.2d0, 0.7d0, k)
 
      print*, "==============================="
      print*, "dt = ",dt

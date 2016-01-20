@@ -7,6 +7,7 @@ module modmainmod
   use writemod
   use getdatamod
   use transiinterfacemod
+  use dtadapmod
 
   implicit none
 
