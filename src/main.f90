@@ -14,9 +14,9 @@ program main
 
   !-----------------------------------!
   integer, parameter :: N = 50        !
-  real(8), parameter :: tmax = 12      !
+  real(8), parameter :: tmax = 0.5    !
   real(8), parameter :: cfl = 0.9     !
-  real(8), parameter :: period = 0.1 !
+  real(8), parameter :: period = 0.1  !
   !-----------------------------------!
 
 
@@ -165,8 +165,8 @@ program main
         
         print*, 'Projection'
 !!$        call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
-!!$        call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
-        call spirale(t,tmax,noeuds,vitesses)
+        call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
+!!$        call spirale(t,tmax,noeuds,vitesses)
         print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp
            call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
@@ -206,8 +206,8 @@ program main
         
         print*, 'Méthode de projection'
 !!$        call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
-!!$        call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
-        call spirale(t,tmax,noeuds,vitesses)
+       call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
+!!$        call spirale(t,tmax,noeuds,vitesses)
         print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp
            call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
