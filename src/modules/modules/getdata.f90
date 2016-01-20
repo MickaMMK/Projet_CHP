@@ -40,7 +40,7 @@ contains
        call abort()
     end if
     call askwarning_int(transi, "Quelle transition à l'interface ?", (/arg("Discontinuité"), arg("Linéaire"),&
-         & arg("Exponentielle")/), 1, 3, "Erreur dans le choix de la transition à l'interface", 1, 3, "", .false.)
+         & arg("Exponentielle"), arg("Martin")/), 1, 4, "Erreur dans le choix de la transition à l'interface", 1, 4, "", .false.)
     call askwarning_int(raff, "Souhaitez-vous rajouter des points lagrangiens aux abords de l'interface :",&
          & (/arg("Oui"), arg("Non")/), 1, 2, "Erreur dans le choix du raffinement", 1, 2, "", .false.)
     if(meth == 2) then

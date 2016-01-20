@@ -14,9 +14,9 @@ program main
 
   !-----------------------------------!
   integer, parameter :: N = 50        !
-  real(8), parameter :: tmax = 12      !
+  real(8), parameter :: tmax = 0.3    !
   real(8), parameter :: cfl = 0.9     !
-  real(8), parameter :: period = 0.1 !
+  real(8), parameter :: period = 0.01 !
   !-----------------------------------!
 
 
@@ -32,7 +32,7 @@ program main
   integer :: info
   real(8), dimension(2) :: g
   real(8) :: dx, dt, rho_air, rho_eau, nu_air, nu_eau, raff_size, lambda, t, tspent
-  real(8) :: cfl_advection, cfl_visco, cfl_L2
+  real(8) :: cfl_advection, cfl_visco, cfl_L2, test_rho
   integer :: i, j, ci, di, ui, k, ki, meth, nbp, npart, raff_num, raff, temp, nbp_new, remaill, pos, transi, reproj
   character(len=1) :: c, d, u
   logical :: writo
@@ -117,7 +117,7 @@ program main
 
 
      print*, "==============================="
-     print*, "dt = ",dt
+     print"(a, f8.7, a, f8.7)", "dt = ",dt, "      t = ", t
      print*, "==============================="
   
      if(transi == 1) then
@@ -153,6 +153,23 @@ program main
            end do
         end do
 
+        else if(transi == 4) then
+           
+           do i = 1, N+1
+              do j = 1, N+1
+
+                 if(level(i,j)<-4.*dx) then
+                    rho(i,j) = rho_air
+                 elseif(level(i,j)>4.*dx) then
+                    rho(i,j) = rho_eau
+                 else
+                    rho(i,j) = rho_air + (rho_eau - rho_air)*0.5*(1+level(i,j)/dx+sin(pi*level(i,j)/dx))
+                    nu(i,j) = nu_air + (nu_eau - nu_air)*0.5*(1+level(i,j)/dx+sin(pi*level(i,j)/dx))
+                 end if
+
+              end do
+           end do
+
      end if
 
 
@@ -165,8 +182,8 @@ program main
         
         print*, 'Projection'
 !!$        call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
-!!$        call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
-        call spirale(t,tmax,noeuds,vitesses)
+        call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
+!!$        call spirale(t,tmax,noeuds,vitesses)
         print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp
            call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
@@ -206,8 +223,8 @@ program main
         
         print*, 'Méthode de projection'
 !!$        call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
-!!$        call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
-        call spirale(t,tmax,noeuds,vitesses)
+        call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
+!!$        call spirale(t,tmax,noeuds,vitesses)
         print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp
            call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
