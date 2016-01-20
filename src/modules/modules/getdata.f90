@@ -4,7 +4,7 @@ module getdatamod
 
 contains
 
-  subroutine getdata(N, meth, reproj, pos, transi, raff, remaill, nbp, npart_uni, npart, raff_num, raff_size)
+  subroutine getdata(N, meth, reproj, pos, transi, raff, remaill, nbp, npart_uni, npart, raff_num, raff_size, ask)
 
     implicit none
 
@@ -12,62 +12,88 @@ contains
     integer, intent(out) :: meth, reproj, pos, transi, raff, remaill, nbp, npart, raff_num
     integer, dimension(:), allocatable, intent(out) :: npart_uni
     real(8), intent(out) :: raff_size
+    integer :: ask
 
     nbp = 0
-
-    call askwarning_int(meth, "Choix de la méthode", (/arg("Eulerien"), arg("Lagrangien")/), 1, 2,&
-         & "Erreur dans le choix de la méthode", 1, 2, "", .false.)
-    if(meth == 2) then
-       call askwarning_int(reproj, "Souhaitez-vous reprojeter les points lagrangiens sur la grille eulerienne ?",&
-            & (/arg("Oui"), arg("Non")/), 1, 2, "Erreur dans le choix de la projection", 1, 2, "", .false.)
-       if(reproj == 2) then
-          reproj = -1
-       else if(reproj == 1) then
-          call askwarning_int(reproj, "Combien d'itérations entre chaque reprojection ?", (/""/), 1, 1000,&
-               & "Erreur dans le choix de la projection", 20, 100, "La valeur donnée pour le nombre d'itération&
-               & semble", .true.)
-       else
-          call abort()
+    
+    if(ask == 0) then
+       open(unit=12, file="parametres.input", status="old")
+       read(12,*) meth 
+       if(meth == 2) then
+          nbp = (N-1)*(N-1)
        end if
-    end if
-    call askwarning_int(pos, "Souhaitez-vous mettre l'eau :", (/arg("Au centre"), arg("A l'extérieur")/),&
-         & 1, 2, "Erreur dans le choix de la position de l'eau", 1, 2, "", .false.)
-    if(pos == 1) then
-       pos = -1
-    elseif(pos == 2) then
-       pos = 1
+       read(12,*) reproj
+       read(12,*) pos
+       pos = int(3*pos-4.5)
+       read(12,*) transi 
+       read(12,*) raff
+       remaill = 2
+       if(raff == 1) then
+          read(12,*) raff_num 
+          allocate(npart_uni(raff_num*2+1))
+          read(12,*) npart_uni(1)
+          npart_uni = npart_uni(1)
+          npart = npart_uni(1)*(raff_num*2+1)
+          nbp = nbp + npart
+          read(12,*) raff_size
+          read(12,*) remaill
+       end if
+       print*,
+       print*, "Paramètres lus, appuyez sur Entrée pour lancer la simulation"
+       read*, 
     else
-       call abort()
-    end if
-    call askwarning_int(transi, "Quelle transition à l'interface ?", (/arg("Discontinuité"), arg("Linéaire"),&
-         & arg("Exponentielle")/), 1, 3, "Erreur dans le choix de la transition à l'interface", 1, 3, "", .false.)
-    call askwarning_int(raff, "Souhaitez-vous rajouter des points lagrangiens aux abords de l'interface :",&
-         & (/arg("Oui"), arg("Non")/), 1, 2, "Erreur dans le choix du raffinement", 1, 2, "", .false.)
-    if(meth == 2) then
-       nbp = (N-1)*(N-1)
+       call askwarning_int(meth, "Choix de la méthode", (/arg("Eulerien"), arg("Lagrangien")/), 1, 2,&
+            & "Erreur dans le choix de la méthode", 1, 2, "", .false.)
+       if(meth == 2) then
+          call askwarning_int(reproj, "Souhaitez-vous reprojeter les points lagrangiens sur la grille eulerienne ?",&
+               & (/arg("Oui"), arg("Non")/), 1, 2, "Erreur dans le choix de la projection", 1, 2, "", .false.)
+          if(reproj == 2) then
+             reproj = -1
+          else if(reproj == 1) then
+             call askwarning_int(reproj, "Combien d'itérations entre chaque reprojection ?", (/""/), 1, 1000,&
+                  & "Erreur dans le choix de la projection", 20, 100, "La valeur donnée pour le nombre d'itération&
+                  & semble", .true.)
+          else
+             call abort()
+          end if
+       end if
+       call askwarning_int(pos, "Souhaitez-vous mettre l'eau :", (/arg("Au centre"), arg("A l'extérieur")/),&
+            & 1, 2, "Erreur dans le choix de la position de l'eau", 1, 2, "", .false.)
+       pos = int(3*pos-4.5)
+       call askwarning_int(transi, "Quelle transition à l'interface ?", (/arg("Discontinuité"), arg("Linéaire"),&
+            & arg("Exponentielle")/), 1, 3, "Erreur dans le choix de la transition à l'interface", 1, 3, "", .false.)
+       call askwarning_int(raff, "Souhaitez-vous rajouter des points lagrangiens aux abords de l'interface :",&
+            & (/arg("Oui"), arg("Non")/), 1, 2, "Erreur dans le choix du raffinement", 1, 2, "", .false.)
+       if(meth == 2) then
+          nbp = (N-1)*(N-1)
+       end if
+
+       print*, pos,"+++++"
+       remaill = 2
+
+       if(raff == 1) then
+          call askwarning_int(raff_num, "Choisissez le nombre d'anneaux de chaque côté de l'interface &
+               &(0 pour du simple front tracking) :", (/""/), 0, 20, "Erreur dans le nombre d'anneaux", 0, 3,&
+               & "La valeur donnée pour le nombre d'anneaux semble", .true.)
+          allocate(npart_uni(raff_num*2+1))
+          call askwarning_int(npart_uni(1), "Choisissez le nombre de points lagrangiens par anneau :", (/""/),&
+               & 1, 10000, "Erreur dans le choix du nombre de points", 10, 1000, "La valeur donnée pour le nombre &
+               &de points semble", .true.)
+          npart_uni = npart_uni(1)
+          npart = npart_uni(1)*(raff_num*2+1)
+          nbp = nbp + npart
+          call askwarning_real(raff_size, "Choisissez la distance entre chaque anneau :", 0.d0, 1.d0,&
+               & "Erreur dans le choix de la distance entre chaques anneaux", 1.d-3, 5.d-2, "La valeur donnée pour la&
+               & distance semble")
+          call askwarning_int(remaill, "Voulez-vous remailler entre chaque itération ?", (/arg("Oui"), arg("Non")/),&
+               & 1, 2, "Erreur dans le choix du remaillage", 1, 2, "", .false.)
+       end if
+       print*,
+       print*, "Paramètres entrés, appuyez sur Entrée pour lancer la simulation"
+       read*, 
     end if
 
-    remaill = 2
-
-    if(raff == 1) then
-       call askwarning_int(raff_num, "Choisissez le nombre d'anneaux de chaque côté de l'interface &
-            &(0 pour du simple front tracking) :", (/""/), 0, 20, "Erreur dans le nombre d'anneaux", 0, 3,&
-            & "La valeur donnée pour le nombre d'anneaux semble", .true.)
-       allocate(npart_uni(raff_num*2+1))
-       call askwarning_int(npart_uni(1), "Choisissez le nombre de points lagrangiens par anneau :", (/""/),&
-            & 1, 10000, "Erreur dans le choix du nombre de points", 10, 1000, "La valeur donnée pour le nombre &
-            &de points semble", .true.)
-       npart_uni = npart_uni(1)
-       npart = npart_uni(1)*(raff_num*2+1)
-       nbp = nbp + npart
-       call askwarning_real(raff_size, "Choisissez la distance entre chaque anneau :", 0.d0, 1.d0,&
-            & "Erreur dans le choix de la distance entre chaques anneaux", 1.d-3, 5.d-2, "La valeur donnée pour la&
-            & distance semble")
-       call askwarning_int(remaill, "Voulez-vous remailler entre chaque itération ?", (/arg("Oui"), arg("Non")/),&
-            & 1, 2, "Erreur dans le choix du remaillage", 1, 2, "", .false.)
-    end if
-
-  end subroutine getdata
+end subroutine getdata
 
   subroutine askwarning_int(data, ask_sentence, choices_array, min, max, error_sentence, minc, maxc, warning_sentence, warning)
 

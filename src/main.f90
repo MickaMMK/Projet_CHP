@@ -14,9 +14,10 @@ program main
 
   !-----------------------------------!
   integer, parameter :: N = 50        !
-  real(8), parameter :: tmax = 0.5    !
+  real(8), parameter :: tmax = 1      !
   real(8), parameter :: cfl = 0.9     !
-  real(8), parameter :: period = 0.01  !
+<<<<<<< HEAD
+  real(8), parameter :: period = 0.01 !
   !-----------------------------------!
 
 
@@ -33,7 +34,7 @@ program main
   real(8), dimension(2) :: g
   real(8) :: dx, dt, rho_air, rho_eau, nu_air, nu_eau, raff_size, lambda, t, tspent
   real(8) :: cfl_advection, cfl_visco, cfl_L2
-  integer :: i, j, ci, di, ui, k, ki, meth, nbp, npart, raff_num, raff, temp, nbp_new, remaill, pos, transi, reproj
+  integer :: i, j, ci, di, ui, k, ki, meth, nbp, npart, raff_num, raff, temp, nbp_new, remaill, pos, transi, reproj, ask
   character(len=1) :: c, d, u
   logical :: writo
 
@@ -41,13 +42,14 @@ program main
   npart = 0
 
   rho_air = 10. !800. !1.
-
   rho_eau = 1000. !1000.
   nu_air = 15d-2 !15.d-6
   nu_eau = 0.9d-2 !0.9d-6
   g = (/0.,-9.81/)
 
-  call getdata(N, meth, reproj, pos, transi, raff, remaill, nbp, npart_uni, npart, raff_num, raff_size)
+  call askdata(ask)        
+
+  call getdata(N, meth, reproj, pos, transi, raff, remaill, nbp, npart_uni, npart, raff_num, raff_size, ask)
 
   allocate(particules(nbp,2), vitesses_particules(nbp,2), level_particules(nbp))
   
@@ -55,10 +57,8 @@ program main
 
   vitesses = 0.
   pressions = Patm
-  
 
   call initlevel(N, noeuds, 0.5d0, 0.5d0, 0.2d0, 0.d0, 0.d0, pos, level, vitesses)
-
 
   if(meth == 2) then
      particules(1:(N-1)*(N-1),:) = vect2(noeuds(2:N,2:N,:))
@@ -102,59 +102,13 @@ program main
      cfl_L2 = 2*min(nu_air,nu_eau)/maxval(abs(vitesses))**2
      dt = cfl*min(cfl_advection,cfl_visco,cfl_L2)
 
-     if (tspent + dt .gt. period) then
-        dt = period - tspent
-        tspent = 0
-        writo = .true.
-        k = k + 1
-     else
-        if (period - (tspent + dt) .lt. 0.2d0*dt ) then
-           dt = 0.7*dt
-        end if
-        tspent = tspent + dt
-        writo = .false.
-     end if
-
+     call dtadap(dt, tspent, period, writo, 0.2d0, 0.7d0, k)
 
      print*, "==============================="
      print*, "dt = ",dt
      print*, "==============================="
   
-     if(transi == 1) then
-
-        rho = 0.5*sign(rho_air-rho_eau, level) + 0.5*(rho_air+rho_eau)
-        nu = 0.5*sign(nu_air-nu_eau, level) + 0.5*(nu_air+nu_eau)
-
-     ! transition linéaire
-
-     else if(transi == 2) then
-
-        do i = 1, N+1
-           do j = 1, N+1
-
-              rho(i,j) = min(rho_eau, max(rho_air, 0.5*(rho_air+rho_eau) + (1./lambda)*level(i,j)*0.5*(rho_air-rho_eau) )) 
-              nu(i,j) = min(nu_eau, max(nu_air, 0.5*(nu_air+nu_eau) + (1./lambda)*level(i,j)*0.5*(nu_air-nu_eau) )) 
-
-           end do
-        end do
-
-     ! transition "thick interface"
-
-     else if(transi == 3) then
-
-        do i = 1, N+1
-           do j = 1, N+1
-
-              rho(i,j) = min(max(rho_air,rho_eau), max(min(rho_air,rho_eau),  &
-                   & min(rho_air,rho_eau)*(max(rho_air,rho_eau)/min(rho_air,rho_eau))**((level(i,j)+lambda)/(2*lambda))))                    
-              nu(i,j) = min(max(nu_air,nu_eau), max(min(nu_air,nu_eau),  &
-                   & min(nu_air,nu_eau)*(max(nu_air,nu_eau)/min(nu_air,nu_eau))**((level(i,j)+lambda)/(2*lambda))))                    
-
-           end do
-        end do
-
-     end if
-
+     call transiinterface(N, transi, level, rho, nu, rho_eau, rho_air, nu_eau, nu_air, lambda)
 
      rho_centre = (rho(1:N,1:N)+rho(1:N,2:N+1)+rho(2:N+1,1:N)+rho(2:N+1,2:N+1))/4
 
