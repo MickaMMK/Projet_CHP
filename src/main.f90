@@ -28,7 +28,7 @@ program main
   real(8), dimension(2) :: g
   real(8) :: dx, dt, rho_air, rho_eau, nu_air, nu_eau, raff_size, lambda, t, tspent
   real(8) :: cfl_advection, cfl_visco, cfl_L2
-  integer :: i, j, ci, di, ui, k, ki, meth, nbp, npart, raff_num, raff, temp, nbp_new, remaill, pos, transi, reproj
+  integer :: i, j, ci, di, ui, k, ki, meth, nbp, npart, raff_num, raff, temp, nbp_new, remaill, pos, transi, reproj, ask
   character(len=1) :: c, d, u
   logical :: writo
 
@@ -41,7 +41,9 @@ program main
   nu_eau = 0.9d-2 !0.9d-6
   g = (/0.,-9.81/)
 
-  call getdata(N, meth, reproj, pos, transi, raff, remaill, nbp, npart_uni, npart, raff_num, raff_size)
+  call askdata(ask)        
+
+  call getdata(N, meth, reproj, pos, transi, raff, remaill, nbp, npart_uni, npart, raff_num, raff_size, ask)
 
   allocate(particules(nbp,2), vitesses_particules(nbp,2), level_particules(nbp))
   
@@ -110,41 +112,7 @@ program main
      print*, "dt = ",dt
      print*, "==============================="
   
-     if(transi == 1) then
-
-        rho = 0.5*sign(rho_air-rho_eau, level) + 0.5*(rho_air+rho_eau)
-        nu = 0.5*sign(nu_air-nu_eau, level) + 0.5*(nu_air+nu_eau)
-
-     ! transition linéaire
-
-     else if(transi == 2) then
-
-        do i = 1, N+1
-           do j = 1, N+1
-
-              rho(i,j) = min(rho_eau, max(rho_air, 0.5*(rho_air+rho_eau) + (1./lambda)*level(i,j)*0.5*(rho_air-rho_eau) )) 
-              nu(i,j) = min(nu_eau, max(nu_air, 0.5*(nu_air+nu_eau) + (1./lambda)*level(i,j)*0.5*(nu_air-nu_eau) )) 
-
-           end do
-        end do
-
-     ! transition "thick interface"
-
-     else if(transi == 3) then
-
-        do i = 1, N+1
-           do j = 1, N+1
-
-              rho(i,j) = min(max(rho_air,rho_eau), max(min(rho_air,rho_eau),  &
-                   & min(rho_air,rho_eau)*(max(rho_air,rho_eau)/min(rho_air,rho_eau))**((level(i,j)+lambda)/(2*lambda))))                    
-              nu(i,j) = min(max(nu_air,nu_eau), max(min(nu_air,nu_eau),  &
-                   & min(nu_air,nu_eau)*(max(nu_air,nu_eau)/min(nu_air,nu_eau))**((level(i,j)+lambda)/(2*lambda))))                    
-
-           end do
-        end do
-
-     end if
-
+     call transiinterface(N, transi, level, rho, nu, rho_eau, rho_air, nu_eau, nu_air, lambda)
 
      rho_centre = (rho(1:N,1:N)+rho(1:N,2:N+1)+rho(2:N+1,1:N)+rho(2:N+1,2:N+1))/4
 
