@@ -15,7 +15,7 @@ contains
     integer :: ask
 
     nbp = 0
-    
+
     if(ask == 0) then
        open(unit=12, file="parametres.input", status="old")
        read(12,*) meth 
@@ -61,7 +61,8 @@ contains
             & 1, 2, "Erreur dans le choix de la position de l'eau", 1, 2, "", .false.)
        pos = int(3*pos-4.5)
        call askwarning_int(transi, "Quelle transition à l'interface ?", (/arg("Discontinuité"), arg("Linéaire"),&
-            & arg("Exponentielle"), arg("Martin")/), 1, 4, "Erreur dans le choix de la transition à l'interface", 1, 4, "", .false.)
+            & arg("Exponentielle"), arg("Martin")/), 1, 4, "Erreur dans le choix de la transition à l'interface"&
+            &, 1, 4, "", .false.)
        call askwarning_int(raff, "Souhaitez-vous rajouter des points lagrangiens aux abords de l'interface :",&
             & (/arg("Oui"), arg("Non")/), 1, 2, "Erreur dans le choix du raffinement", 1, 2, "", .false.)
        if(meth == 2) then
@@ -92,7 +93,7 @@ contains
        read*, 
     end if
 
-end subroutine getdata
+  end subroutine getdata
 
   subroutine askwarning_int(data, ask_sentence, choices_array, min, max, error_sentence, minc, maxc, warning_sentence, warning)
 

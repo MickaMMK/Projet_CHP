@@ -65,7 +65,7 @@ contains
 
     real(wp), dimension(:), intent(in)                    :: B, rho
     real(wp), dimension(size(B,1)), intent(out)           :: X
-    real(wp), dimension(:), allocatable                   :: h, g, g_old
+    real(wp), dimension(:), allocatable                   :: h, h2, g, g_old
 !!$    real(wp), dimension(:), allocatable                   :: w, r, Aw
     real(wp), intent(in)                                  :: dx
     real(wp)                                              :: alpha, gamma, eps, err
@@ -144,7 +144,7 @@ contains
     
     g = mat_vect_diphasique(X,dx,rho) - B
     h = -condi_diphasique(g,rho)
-    err = -dot_product(condi_diphasique(g,rho),g)
+    err = -dot_product(-h,g)
     i = 0
 
     do while((err > eps) .and. (i .le. 20000))
@@ -153,9 +153,10 @@ contains
        x = x + alpha*h
        g_old = g
        g = g + alpha*mat_vect_diphasique(h,dx,rho)
-       gamma = dot_product(condi_diphasique(g,rho),g)/dot_product(condi_diphasique(g_old,rho),g_old)
-       h = -condi_diphasique(g,rho) + gamma*h
-       err = -dot_product(condi_diphasique(g,rho),g)
+       h2=condi_diphasique(g,rho)
+       gamma = dot_product(h2,g)/dot_product(-h,g_old)
+       h = -h2 + gamma*h
+       err = -dot_product(-h,g)
        i = i + 1
 
     end do

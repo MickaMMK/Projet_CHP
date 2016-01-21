@@ -134,8 +134,9 @@ contains
 
     integer                           :: i, j
     real(8)                           :: ponderation
-    real(8)                           :: dist
+    real(8)                           :: dist, temp
     real(8)                           :: u, v      ! u=x/dx; v=y/dy
+    
 
 
     ponderation = 0.
@@ -153,23 +154,29 @@ contains
           !Carré gauche
           if ( ( u >= -2.0) .and. ( u <= -1.0) ) then
 
-             valeur = valeur + level(i)*((2-v)**3/6)*((2-u)**3/6)
+             temp = ((2-v)**3/6)*((2-u)**3/6)
 
-             ponderation = ponderation + ((2-v)**3/6)*((2-u)**3/6)
+             valeur = valeur + level(i)*temp
+
+             ponderation = ponderation + temp
 
           !Carré milieu 
           elseif ( ( u >= -1.0) .and. ( u <= 1.0) ) then
 
-             valeur = valeur + level(i)*((2-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
+             temp = ((2-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
 
-             ponderation = ponderation + ((2-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
+             valeur = valeur + level(i)*temp
+
+             ponderation = ponderation + temp
 
           !Carré droit            
           elseif ( ( u >= 1.0) .and. ( u <= 2.0) ) then
 
-             valeur = valeur + level(i)*((2-v)**3/6)*((2-u)**3/6)
+             temp = ((2-v)**3/6)*((2-u)**3/6)
 
-             ponderation = ponderation + ((2-v)**3/6)*((2-u)**3/6) 
+             valeur = valeur + level(i)*temp
+
+             ponderation = ponderation + temp
 
           end if
 
@@ -180,21 +187,27 @@ contains
           !Carré gauche
           if ( ( u >= -2.0) .and. ( u <= -1.0) ) then
 
-             valeur = valeur + level(i)*((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6)
+             temp = ((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6)
 
-             ponderation = ponderation + ((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6)
+             valeur = valeur + level(i)*temp
+
+             ponderation = ponderation + temp
           !Carré milieu
           elseif ( ( u >= -1.0) .and. ( u <= 1.0) ) then
 
-             valeur = valeur + level(i)*((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
+             temp = ((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
 
-             ponderation = ponderation + ((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
+             valeur = valeur + level(i)*temp
+
+             ponderation = ponderation + temp
           !Carré droit
           elseif ( ( u >= 1.0) .and. ( u <= 2.0) ) then
 
-             valeur = valeur + level(i)*((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6)
+             temp = ((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6)
 
-             ponderation = ponderation + ((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6) 
+             valeur = valeur + level(i)*temp
+
+             ponderation = ponderation + temp
 
           end if
 
@@ -205,23 +218,29 @@ contains
           !Carré gauche
           if ( ( u >= -2.0) .and. ( u <= -1.0) ) then
 
-             valeur = valeur + level(i)*((2-v)**3/6)*((2-u)**3/6)
+             temp = ((2-v)**3/6)*((2-u)**3/6)
 
-             ponderation = ponderation + ((2-v)**3/6)*((2-u)**3/6)
+             valeur = valeur + level(i)*temp
+
+             ponderation = ponderation + temp
 
           !Carré milieu
           elseif ( ( u >= -1.0) .and. ( u <= 1.0) ) then
 
-             valeur = valeur + level(i)*((2-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
+             temp = ((2-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
 
-             ponderation = ponderation + ((2-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
+             valeur = valeur + level(i)*temp
+
+             ponderation = ponderation + temp
 
           !Carré droit
           elseif ( ( u >= 1.0) .and. ( u <= 2.0) ) then
 
-             valeur = valeur + level(i)*((2-v)**3/6)*((2-u)**3/6)
+             temp = ((2-v)**3/6)*((2-u)**3/6)
 
-             ponderation = ponderation + ((2-v)**3/6)*((2-u)**3/6) 
+             valeur = valeur + level(i)*temp
+
+             ponderation = ponderation + temp
 
           end if
 

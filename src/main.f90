@@ -7,20 +7,21 @@ program main
   use raffinage
 
   implicit none
-!coder 3 normes
-!Eulerien: level
-!lagrangien: noeuds
+  !coder 3 normes
+  !Eulerien: level
+  !lagrangien: noeuds
 
 
   !-----------------------------------!
   integer, parameter :: N = 50        !
-  real(8), parameter :: tmax = 0.3    !
+  real(8), parameter :: tmax = 0.5    !
   real(8), parameter :: cfl = 0.9     !
   real(8), parameter :: period = 0.01 !
   !-----------------------------------!
 
 
   real(8), dimension(N+1,N+1,2) :: noeuds, vitesses
+  real(8), dimension((N+1)**2,2):: noeuds_vect
   real(8), dimension(:,:), allocatable :: particules, vitesses_particules, new_part, partitemp
   real(8), dimension(N,N,2) :: centres
   real(8), dimension(N+1,N+1) :: level, rho, nu
@@ -52,12 +53,12 @@ program main
   call getdata(N, meth, reproj, pos, transi, raff, remaill, nbp, npart_uni, npart, raff_num, raff_size, ask)
 
   allocate(particules(nbp,2), vitesses_particules(nbp,2), level_particules(nbp))
-  
+
   call initcoord(noeuds, centres)
 
   vitesses = 0.
   pressions = Patm
-
+  noeuds_vect = vect2(noeuds)
   call initlevel(N, noeuds, 0.5d0, 0.5d0, 0.2d0, 0.d0, 0.d0, pos, level, vitesses)
 
   if(meth == 2) then
@@ -68,7 +69,7 @@ program main
      call initpart(particules(nbp-npart+1:nbp,:), level_particules(nbp-npart+1:nbp), npart_uni(1), raff_num, raff_size, pos)
   end if
 
-  call write("level", 0, vect2(noeuds), vect1(level))
+  call write("level", 0, noeuds_vect, vect1(level))
 !!$  call write("vitesses_x", 0, vect2(noeuds), vect1(vitesses(:,:,1)))
 !!$  call write("vitesses_y", 0, vect2(noeuds), vect1(vitesses(:,:,2)))
 !!$  call write("pressions", 0, vect2(centres), vect1(pressions))
@@ -78,7 +79,7 @@ program main
      call write("level_particules", 0, particules, level_particules)
 !!$     call write("vitesses_x_particules", 0, particules, vitesses_particules(:,1))
 !!$     call write("vitesses_y_particules", 0, particules, vitesses_particules(:,2))
-  end if     
+  end if
 
   t = 0.
   k = 0
@@ -90,14 +91,14 @@ program main
 
   cfl_visco = dx*dx/(4*max(nu_air,nu_eau))
 
-!######################################################################################################################################################################################################
-!######################################################################################################################################################################################################
-!######################################################################################################################################################################################################
+  !######################################################################################################################################################################################################
+  !######################################################################################################################################################################################################
+  !######################################################################################################################################################################################################
 
   do while (t .le. tmax)
 
      ki = ki + 1
-     
+
      cfl_advection = dx/maxval(abs(vitesses))
      cfl_L2 = 2*min(nu_air,nu_eau)/maxval(abs(vitesses))**2
      dt = cfl*min(cfl_advection,cfl_visco,cfl_L2)
@@ -107,7 +108,7 @@ program main
      print*, "==============================="
      print"(a, f8.7, a, f8.7)", "dt = ",dt, "      t = ", t
      print*, "==============================="
-  
+
 
      call transiinterface(N, transi, level, rho, nu, rho_eau, rho_air, nu_eau, nu_air, lambda)
 
@@ -117,15 +118,15 @@ program main
 
         !==============================================================================================
         !========================================== EULERIEN ==========================================
-        
+
         print*, 'Projection'
 !!$        call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
         call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
 !!$        call spirale(t,tmax,noeuds,vitesses)
         print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp
-           call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
-           call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,2)), particules(i,:), dx, vitesses_particules(i,2))
+           call noyau_interp(noeuds_vect, vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
+           call noyau_interp(noeuds_vect, vect1(vitesses(:,:,2)), particules(i,:), dx, vitesses_particules(i,2))
         end do
 
         print*, 'Transport'
@@ -140,7 +141,7 @@ program main
 
         if(writo) then
            print*, 'Ecriture'
-           call write("level", k, vect2(noeuds), vect1(level))
+           call write("level", k, noeuds_vect, vect1(level))
 !!$           call write("vitesses_x", k, vect2(noeuds), vect1(vitesses(:,:,1)))
 !!$           call write("vitesses_y", k, vect2(noeuds), vect1(vitesses(:,:,2)))
 !!$           call write("pressions", k, vect2(centres), vect1(pressions))
@@ -155,18 +156,18 @@ program main
         !==============================================================================================
 
      else if(meth == 2) then
-        
+
         !==============================================================================================
         !========================================= LAGRANGIEN =========================================
-        
+
         print*, 'Méthode de projection'
 !!$        call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
         call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
 !!$        call spirale(t,tmax,noeuds,vitesses)
         print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp
-           call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
-           call noyau_interp(vect2(noeuds), vect1(vitesses(:,:,2)), particules(i,:), dx, vitesses_particules(i,2))
+           call noyau_interp(noeuds_vect, vect1(vitesses(:,:,1)), particules(i,:), dx, vitesses_particules(i,1))
+           call noyau_interp(noeuds_vect, vect1(vitesses(:,:,2)), particules(i,:), dx, vitesses_particules(i,2))
         end do
 
         print*, 'Transport des particules'
@@ -192,14 +193,14 @@ program main
            end if
         end if
 
-        
+
         if(writo) then
            print*, 'Ecriture'
            call write("level_particules", k, particules, level_particules)
 !!$           call write("vitesses_x_particules", k, particules, vitesses_particules(:,1))
 !!$           call write("vitesses_y_particules", k, particules, vitesses_particules(:,2))
 
-           call write("level", k, vect2(noeuds), vect1(level))
+           call write("level", k, noeuds_vect, vect1(level))
 !!$           call write("vitesses_x", k, vect2(noeuds), vect1(vitesses(:,:,1)))
 !!$           call write("vitesses_y", k, vect2(noeuds), vect1(vitesses(:,:,2)))
 !!$           call write("pressions", k, vect2(centres), vect1(pressions))
@@ -208,7 +209,7 @@ program main
         !==============================================================================================
 
      else
-        
+
         print*, "Putain mais comment t'es arrivé là avec une mauvaise méthode ?!"
 
      end if
