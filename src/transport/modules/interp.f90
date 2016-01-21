@@ -120,7 +120,7 @@ contains
 
 !!$%%%%%%% COMMENTAIRES %%%%%%%!!
 !!$
-!!$ Noyau d'interpolation M'_{4} . CF Inviscid axisymmetrization of an elliptical vortex
+!!$ Noyau d'interpolation M'_{4} . CF Inviscid axisymetrization of an elliptical vortex
 !!$
 !!$%%%%%%% FIN COMMENTAIRES %%%%%%%!!
 

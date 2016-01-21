@@ -14,7 +14,7 @@ program main
 
   !-----------------------------------!
   integer, parameter :: N = 50        !
-  real(8), parameter :: tmax = 1      !
+  real(8), parameter :: tmax = 0.3    !
   real(8), parameter :: cfl = 0.9     !
   real(8), parameter :: period = 0.01 !
   !-----------------------------------!
@@ -34,6 +34,7 @@ program main
   real(8) :: dx, dt, rho_air, rho_eau, nu_air, nu_eau, raff_size, lambda, t, tspent
   real(8) :: cfl_advection, cfl_visco, cfl_L2
   integer :: i, j, ci, di, ui, k, ki, meth, nbp, npart, raff_num, raff, temp, nbp_new, remaill, pos, transi, reproj, ask
+
   character(len=1) :: c, d, u
   logical :: writo
 
@@ -104,9 +105,10 @@ program main
      call dtadap(dt, tspent, period, writo, 0.2d0, 0.7d0, k)
 
      print*, "==============================="
-     print*, "dt = ",dt
+     print"(a, f8.7, a, f8.7)", "dt = ",dt, "      t = ", t
      print*, "==============================="
   
+
      call transiinterface(N, transi, level, rho, nu, rho_eau, rho_air, nu_eau, nu_air, lambda)
 
      rho_centre = (rho(1:N,1:N)+rho(1:N,2:N+1)+rho(2:N+1,1:N)+rho(2:N+1,2:N+1))/4
@@ -159,7 +161,7 @@ program main
         
         print*, 'Méthode de projection'
 !!$        call projection_method(vitesses, pressions, rho, rho_centre, nu, g, dt, dx, level, A, ipvt)
-       call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
+        call projection_method_diphasique(vitesses, pressions, rho, rho_centre, rho*nu, g, dt, dx, level, A, ipvt)
 !!$        call spirale(t,tmax,noeuds,vitesses)
         print*, 'Interpolation de la vitesse sur les particules'
         do i = 1, nbp

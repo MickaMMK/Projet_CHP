@@ -61,14 +61,13 @@ contains
             & 1, 2, "Erreur dans le choix de la position de l'eau", 1, 2, "", .false.)
        pos = int(3*pos-4.5)
        call askwarning_int(transi, "Quelle transition à l'interface ?", (/arg("Discontinuité"), arg("Linéaire"),&
-            & arg("Exponentielle")/), 1, 3, "Erreur dans le choix de la transition à l'interface", 1, 3, "", .false.)
+            & arg("Exponentielle"), arg("Martin")/), 1, 4, "Erreur dans le choix de la transition à l'interface", 1, 4, "", .false.)
        call askwarning_int(raff, "Souhaitez-vous rajouter des points lagrangiens aux abords de l'interface :",&
             & (/arg("Oui"), arg("Non")/), 1, 2, "Erreur dans le choix du raffinement", 1, 2, "", .false.)
        if(meth == 2) then
           nbp = (N-1)*(N-1)
        end if
 
-       print*, pos,"+++++"
        remaill = 2
 
        if(raff == 1) then
