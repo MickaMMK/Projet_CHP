@@ -16,7 +16,6 @@ program main
   integer, parameter :: N = 50        !
   real(8), parameter :: tmax = 1      !
   real(8), parameter :: cfl = 0.9     !
-<<<<<<< HEAD
   real(8), parameter :: period = 0.01 !
   !-----------------------------------!
 
