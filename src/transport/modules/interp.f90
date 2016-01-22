@@ -132,7 +132,7 @@ contains
     real(8),intent(in)                :: dx        ! Pas d'espace
     real(8),intent(out)               :: valeur
 
-    integer                           :: i, j
+    integer                           :: i, j, compteur
     real(8)                           :: ponderation
     real(8)                           :: dist, temp
     real(8)                           :: u, v      ! u=x/dx; v=y/dy
@@ -141,6 +141,7 @@ contains
 
     ponderation = 0.
     valeur = 0.
+    compteur = 0
 
     ! Kernels multipliés
     do i = 1, size(noeuds,1)
@@ -148,104 +149,123 @@ contains
        u = abs(noeuds(i,1)-coord(1))/dx
        v = abs(noeuds(i,2)-coord(2))/dx
 
-       !Ligne du haut
-       if ( ( v >= -2.0 ) .and. ( v <= -1.0 ) ) then
-
-          !Carré gauche
-          if ( ( u >= -2.0) .and. ( u <= -1.0) ) then
-
-             temp = ((2-v)**3/6)*((2-u)**3/6)
-
-             valeur = valeur + level(i)*temp
-
-             ponderation = ponderation + temp
-
-          !Carré milieu 
-          elseif ( ( u >= -1.0) .and. ( u <= 1.0) ) then
-
-             temp = ((2-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
-
-             valeur = valeur + level(i)*temp
-
-             ponderation = ponderation + temp
-
-          !Carré droit            
-          elseif ( ( u >= 1.0) .and. ( u <= 2.0) ) then
-
-             temp = ((2-v)**3/6)*((2-u)**3/6)
-
-             valeur = valeur + level(i)*temp
-
-             ponderation = ponderation + temp
-
-          end if
+!!$       !Ligne du haut
+!!$       !if ( ( v >= -2.0 ) .and. ( v <= -1.0 ) ) then
+!!$       if (abs(v+1.5)<=0.5) then
+!!$
+!!$          !Carré gauche
+!!$          !if ( ( u >= -2.0) .and. ( u <= -1.0) ) then
+!!$          if (abs(u+1.5)<=0.5) then
+!!$
+!!$             temp = ((2-v)**3/6)*((2-u)**3/6)
+!!$
+!!$             valeur = valeur + level(i)*temp
+!!$
+!!$             ponderation = ponderation + temp
+!!$
+!!$          !Carré milieu 
+!!$          !elseif ( ( u >= -1.0) .and. ( u <= 1.0) ) then
+!!$          elseif (abs(u)<1) then
+!!$
+!!$             temp = ((2-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
+!!$
+!!$             valeur = valeur + level(i)*temp
+!!$
+!!$             ponderation = ponderation + temp
+!!$
+!!$          !Carré droit            
+!!$          !elseif ( ( u >= 1.0) .and. ( u <= 2.0) ) then
+!!$          elseif (abs(u-1.5)<=0.5) then
+!!$
+!!$             temp = ((2-v)**3/6)*((2-u)**3/6)
+!!$
+!!$             valeur = valeur + level(i)*temp
+!!$
+!!$             ponderation = ponderation + temp
+!!$
+!!$          end if
 
 
        !Ligne du milieu
-       elseif ( ( v >= -1.0 ) .and. ( v <= 1.0 ) ) then
+       !elseif ( ( v >= -1.0 ) .and. ( v <= 1.0 ) ) then
+       if (v<=1.) then
 
-          !Carré gauche
-          if ( ( u >= -2.0) .and. ( u <= -1.0) ) then
+!!$          !Carré gauche
+!!$          !if ( ( u >= -2.0) .and. ( u <= -1.0) ) then
+!!$          if (abs(u+1.5)<=0.5) then
+!!$
+!!$             temp = ((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6)
+!!$
+!!$             valeur = valeur + level(i)*temp
+!!$
+!!$             ponderation = ponderation + temp
 
-             temp = ((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6)
-
-             valeur = valeur + level(i)*temp
-
-             ponderation = ponderation + temp
           !Carré milieu
-          elseif ( ( u >= -1.0) .and. ( u <= 1.0) ) then
+          !elseif ( ( u >= -1.0) .and. ( u <= 1.0) ) then
+          if (u<=1) then
 
              temp = ((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
 
              valeur = valeur + level(i)*temp
 
              ponderation = ponderation + temp
+             compteur = compteur + 1
           !Carré droit
-          elseif ( ( u >= 1.0) .and. ( u <= 2.0) ) then
+             !elseif ( ( u >= 1.0) .and. ( u <= 2.0) ) then
+          elseif (abs(u-1.5)<=0.5) then
 
              temp = ((2-v)**3/6 - 4*(1-v)**3/6)*((2-u)**3/6)
 
              valeur = valeur + level(i)*temp
 
              ponderation = ponderation + temp
+             compteur = compteur + 1
 
           end if
 
 
        !Ligne du bas
-       elseif ( ( v >= 1.0 ) .and. ( v <= 2.0 ) ) then
+       !elseif ( ( v >= 1.0 ) .and. ( v <= 2.0 ) ) then
+       elseif (abs(v-1.5)<=0.5) then
 
-          !Carré gauche
-          if ( ( u >= -2.0) .and. ( u <= -1.0) ) then
-
-             temp = ((2-v)**3/6)*((2-u)**3/6)
-
-             valeur = valeur + level(i)*temp
-
-             ponderation = ponderation + temp
+!!$          !Carré gauche
+!!$          !if ( ( u >= -2.0) .and. ( u <= -1.0) ) then
+!!$          if (abs(u+1.5)<=0.5) then
+!!$
+!!$             temp = ((2-v)**3/6)*((2-u)**3/6)
+!!$
+!!$             valeur = valeur + level(i)*temp
+!!$
+!!$             ponderation = ponderation + temp
 
           !Carré milieu
-          elseif ( ( u >= -1.0) .and. ( u <= 1.0) ) then
+          !elseif ( ( u >= -1.0) .and. ( u <= 1.0) ) then
+          if (u<=0.5) then
 
              temp = ((2-v)**3/6)*((2-u)**3/6 - 4*(1-u)**3/6)
 
              valeur = valeur + level(i)*temp
 
              ponderation = ponderation + temp
+             compteur = compteur + 1
 
           !Carré droit
-          elseif ( ( u >= 1.0) .and. ( u <= 2.0) ) then
+          !elseif ( ( u >= 1.0) .and. ( u <= 2.0) ) then
+          elseif (abs(u-1.5)<=0.5) then
 
              temp = ((2-v)**3/6)*((2-u)**3/6)
 
              valeur = valeur + level(i)*temp
 
              ponderation = ponderation + temp
+             compteur = compteur + 1
 
           end if
 
 
        end if
+
+       if(compteur==25) exit
 
     end do
 

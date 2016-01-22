@@ -4,6 +4,17 @@ module getdatamod
 
 contains
 
+   !---------------------------------------------------------------------------
+   !> @brief
+   !> Receive parameters from the user in order to set the configuration
+   !
+   !> @author 
+   !> Mickaël RIVIER, engineer student at ENSEIRB-MATMECA, Bordeaux, FR.
+   !
+   !> @param[in]  N      
+   !> @param[out] meth, reproj, pos, transi, raff, remaill, nbp, npart, raff_num
+   !--------------------------------------------------------------------------- 
+ 
   subroutine getdata(N, meth, reproj, pos, transi, raff, remaill, nbp, npart_uni, npart, raff_num, raff_size, ask)
 
     implicit none

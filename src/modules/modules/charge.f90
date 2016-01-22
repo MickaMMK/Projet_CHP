@@ -3,6 +3,16 @@ module chargemod
 
 contains
 
+   !---------------------------------------------------------------------------
+   !> @brief
+   !> Separate the tasks among the differents processor
+   !
+   !
+   !> @param[in] me, n, Np    
+   !> @param[out] i1, in   
+   !> @return The number of the first and last task for each processor
+   !--------------------------------------------------------------------------- 
+ 
   subroutine charge(me,n,Np,i1,in)
 
     implicit none

@@ -5,6 +5,18 @@ module eulermod
 !!$%%%%%%% FIN COMMENTAIRES %%%%%%%!!
   implicit none
 
+   !---------------------------------------------------------------------------
+   !> @brief
+   !> 
+   !
+   !> @author 
+   !> Corentin PRIGENT, engineer student at ENSEIRB-MATMECA, Bordeaux, FR.
+   !
+   !> @param[in] dx, N      
+   !> @param[out] A      
+   !> @return The Poisson's matrix
+   !--------------------------------------------------------------------------- 
+ 
 contains
   subroutine euler(vitesse, coord, dt)
     implicit none
